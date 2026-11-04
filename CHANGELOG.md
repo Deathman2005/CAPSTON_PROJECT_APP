@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.0] - Phase 1: Android Application Foundation - 2026-11-05
+
+### Added
+- **Compose Navigation**:
+  - Implemented `Screen` sealed hierarchy (`Onboarding`, `PermissionSetup`, `Home`, `Scanner`, `Settings`).
+  - Added `SMSShieldNavGraph` connecting onboarding, permission gates, dashboard, manual scanner, and settings.
+  - Configured start destination logic responding to DataStore onboarding completion status.
+- **Onboarding Flow (`OnboardingScreen`)**:
+  - Product introduction and transparent disclosure of processed metadata.
+  - Strict privacy notices detailing non-collection of OTPs, PINs, passwords, and raw SMS messages.
+  - Explicit user opt-in checkbox requirement before proceeding.
+- **Permission Setup (`PermissionSetupScreen`)**:
+  - Real-time `NotificationListenerService` permission status check.
+  - Action launcher for `Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS`.
+  - Clear disclosure that monitoring is limited strictly to whitelisted SMS apps and manual scanning remains accessible if denied.
+- **Home Dashboard Shell (`HomeScreen`)**:
+  - Real-time guard status banner reflecting listener connection and user preference state.
+  - Telemetry statistics grid (`Total Scans`, `Safe Messages`, `Suspicious`, `Malicious Links`).
+  - Recent scan activity list backed by Room Database Flow with zero-state empty views.
+  - Floating action button navigating to Scanner.
+- **Message Scanner (`ScannerScreen`)**:
+  - Manual message input with clipboard paste button.
+  - Live regex URL extraction preview.
+  - Analysis execution state (`Idle`, `Loading`, `Success`, `Error`).
+  - Structured risk result display (`Classification`, `Risk Score`, `Recommendations`, `Security Indicators`).
+- **Settings & Privacy Screen (`SettingsScreen`)**:
+  - Monitoring enable/disable toggle.
+  - Supported SMS sources registry inspector (`Google Messages`, `Samsung Messages`).
+  - Configurable backend URL setting for emulator (`10.0.2.2`) and physical devices.
+  - Data retention configuration and "Delete All History" confirmation dialog.
+  - Full in-app Privacy Policy dialog.
+- **Data Persistence**:
+  - Room Database (`AppDatabase`, `ScanRecordEntity`, `ScanRecordDao`) strictly enforcing zero raw SMS storage.
+  - Jetpack DataStore Preferences (`UserPreferencesRepository`) with monitoring disabled by default (`isMonitoringEnabled = false`).
+- **Android Sharesheet (`ACTION_SEND`)**:
+  - Integrated intent handling in `MainActivity` pre-filling shared SMS text and launching the Scanner screen.
+- **Automated Domain & Architecture Tests**:
+  - Verified default user preferences, URL parsing rules, and scan privacy constraints.
+
+---
+
 ## [0.1.0] - Phase 0: Project Foundation - 2026-11-04
 
 ### Added

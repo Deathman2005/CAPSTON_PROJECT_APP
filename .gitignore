@@ -61,6 +61,8 @@ dist-ssr/
 # Android & Gradle
 .gradle/
 build/
+bin/
+*/bin/
 app/build/
 core-domain/build/
 local.properties
