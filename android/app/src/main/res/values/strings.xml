@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SMS Shield</string>
+    <string name="notification_listener_service_name">SMS Shield Notification Guard</string>
+    <string name="app_tagline">AI-Powered SMS Scam and Malicious URL Detection</string>
+</resources>

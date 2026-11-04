@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="shield_dark_bg">#030712</color>
+    <color name="shield_card_bg">#111827</color>
+    <color name="shield_cyan">#06B6D4</color>
+    <color name="shield_emerald">#10B981</color>
+    <color name="shield_amber">#F59E0B</color>
+    <color name="shield_rose">#EF4444</color>
+</resources>
