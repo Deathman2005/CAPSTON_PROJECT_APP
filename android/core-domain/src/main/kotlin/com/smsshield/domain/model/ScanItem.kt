@@ -16,3 +16,4 @@ data class ScanItem(
     val recommendation: String,
     val sourceCategory: String
 )
+

@@ -30,3 +30,4 @@ interface ScanRecordDao {
     @Query("DELETE FROM scan_records")
     suspend fun clearAllScans()
 }
+

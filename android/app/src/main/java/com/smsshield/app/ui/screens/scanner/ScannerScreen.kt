@@ -310,3 +310,4 @@ fun ScanResultCard(scanItem: ScanItem) {
         }
     }
 }
+

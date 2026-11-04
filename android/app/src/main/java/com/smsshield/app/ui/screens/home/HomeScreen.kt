@@ -387,3 +387,4 @@ private fun RecentScanCard(scan: ScanItem) {
         }
     }
 }
+

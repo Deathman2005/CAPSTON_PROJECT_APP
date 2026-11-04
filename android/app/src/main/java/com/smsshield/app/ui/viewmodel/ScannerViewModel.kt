@@ -124,3 +124,4 @@ class ScannerViewModel(
         _scanState.value = ScanUiState.Idle
     }
 }
+

@@ -22,3 +22,4 @@ object PermissionUtils {
         return Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
     }
 }
+

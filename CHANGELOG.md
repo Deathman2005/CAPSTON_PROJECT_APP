@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0] - Phase 2: Automatic Notification Listener - 2026-11-05
+
+### Added
+- **Approved SMS Application Registry (`SupportedSmsApps`)**:
+  - Implemented package whitelist strictly limited to `com.google.android.apps.messaging` (Google Messages) and `com.samsung.android.messaging` (Samsung Messages).
+  - Explicitly rejects social messaging apps (WhatsApp, Telegram, Signal), email clients (Gmail, Outlook), and banking applications at the notification listener boundary.
+- **Defensive Notification Content Parser (`NotificationParser`)**:
+  - Extracts title, visible text, and conversational messages defensively across standard, `BigTextStyle`, and `MessagingStyle` structures.
+  - Gracefully handles missing, empty, or OS-redacted notification payloads (`NotificationParseResult.RedactedOrEmpty`).
+  - Zero-logging rule: diagnostic telemetry logs character length and URL count; raw SMS message text is strictly never printed to logs.
+- **Transactional OTP Detection & Privacy Bypass (`OtpDetector`)**:
+  - Identifies authentic, benign transactional verification codes (e.g. Amazon, Swiggy) containing numeric codes without URLs or threats.
+  - Safely bypasses benign OTPs from analysis and persistence to protect user privacy.
+  - Flags credential-theft phishing attempts (messages pairing verification codes with external URLs or account suspension threats) for active threat analysis.
+- **Time-Windowed Deduplication & Rate Limiting (`DuplicateDetector`)**:
+  - Computes SHA-256 fingerprint from `packageName + sender + messageText`.
+  - Suppresses duplicate notification events within a 60-second sliding window.
+  - Implements adaptive rate limiting (maximum 15 events/minute) to protect CPU and battery life.
+- **Advanced URL Extractor & Feature Analyzer (`UrlExtractor`)**:
+  - Robust regex pattern matching HTTP/HTTPS and scheme-less domains.
+  - Strips leading and trailing punctuation (brackets, trailing periods, commas, colons).
+  - Normalizes hostnames and handles Internationalized Domain Names (IDN Punycode `xn--`).
+  - Identifies known URL shorteners (`bit.ly`, `tinyurl.com`, `t.co`, `is.gd`, etc.).
+  - Detects suspicious raw IPv4 address hostnames.
+  - Flags deceptive subdomains on high-risk TLDs (e.g. `sbi.bank.account-update.xyz`).
+  - Discards email addresses (`support@bank.com`) by checking preceding `@` boundary characters.
+- **NotificationListenerService Integration (`SMSNotificationListener`)**:
+  - Enforces instant user opt-in control (drops all notifications immediately if monitoring is toggled off in settings).
+  - Runs all parsing, URL analysis, and persistence asynchronously off the main thread via Kotlin Coroutines (`Dispatchers.Default`).
+  - Saves risk assessment metadata to local Room database with zero raw SMS content.
+- **Automated Test Matrix**:
+  - 34 unit tests across 5 test suites covering package filtering, deduplication, OTP privacy, and all 10 URL extraction edge cases.
+
+---
+
 ## [0.2.0] - Phase 1: Android Application Foundation - 2026-11-05
 
 ### Added

@@ -197,3 +197,4 @@ private fun NegativePoint(text: String) {
         Text(text = text, fontSize = 12.sp, color = Color.LightGray)
     }
 }
+
