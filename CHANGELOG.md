@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.0] - Phase 3: Backend Threat Intelligence and URL Scanning - 2026-11-05
+
+### Added
+- **Defensive URL Normalizer & Sensitive Token Redactor (`backend/app/services/url/normalizer.py`)**:
+  - Automatically handles natural language text extraction by stripping leading and trailing punctuation (brackets, quotes, commas, terminal periods).
+  - Normalizes scheme-less domains safely defaulting to `http://` while strictly rejecting unsafe schemes (`file://`, `ftp://`, `javascript:`, `data:`, `mailto:`, `about:`).
+  - Handles Internationalized Domain Names (IDN Punycode `xn--`) and canonical ASCII representations.
+  - Automatically detects IP-literal hostnames (IPv4/IPv6) and known URL shorteners (`bit.ly`, `tinyurl.com`, `t.co`, `cutt.ly`, etc.).
+  - Privacy and Token Redaction: sanitizes sensitive credential keys (`token`, `password`, `secret`, `auth`, `api_key`, `session`) from query parameters into `[REDACTED]` before persistent storage.
+- **SSRF & DNS Rebinding Security Engine (`backend/app/services/url/ssrf_protector.py`)**:
+  - Implements multi-layered pre-inspection validation gate protecting backend and intranet infrastructure.
+  - Blocks loopback interfaces (`127.0.0.0/8`, `::1`, `localhost`).
+  - Blocks RFC 1918 private subnets (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`).
+  - Blocks cloud provider instance metadata services (`169.254.169.254`, `metadata.google.internal`, `instance-data`).
+  - Blocks carrier-grade NAT (`100.64.0.0/10`), multicast (`224.0.0.0/4`), broadcast, and reserved networks.
+  - Mitigates DNS rebinding attacks by resolving candidate hostnames prior to outbound dispatch and verifying every returned socket address against disallowed CIDR ranges.
+- **Threat Intelligence Provider Integrations (`backend/app/services/threat_intelligence/`)**:
+  - `URLhausProvider`: Integrates with abuse.ch URLhaus threat feed. Enforces strict privacy rule: missing database records map to `UNKNOWN`, never false `CLEAN`.
+  - `GoogleSafeBrowsingProvider`: Integrates with Google Safe Browsing Lookup API v4 for malware, unwanted software, and social engineering threat matching; returns `UNCONFIGURED` when API key is missing.
+  - `VirusTotalProvider`: Integrates with VirusTotal v3 URL intelligence API; evaluates multi-engine detection metrics (`>= 2` malicious -> `MALICIOUS`, single hit / `>= 2` suspicious -> `SUSPICIOUS`, harmless -> `CLEAN`, 404/no telemetry -> `UNKNOWN`).
+  - `ThreatAggregator`: Coordinates concurrent asynchronous lookups using `asyncio.gather`. Enforces malicious override priority, evidence reason aggregation, and strict `UNKNOWN` status whenever positive or negative intelligence is absent. Implements exception isolation so individual provider failures do not degrade overall service.
+- **API Scan Endpoints (`backend/app/api/v1/endpoints/`)**:
+  - `POST /api/v1/scan/url`: Complete endpoint for single URL inspection with normalization, SSRF verification, multi-source threat queries, lexical risk checks, and database audit logging.
+  - `POST /api/v1/scan/message`: Complete endpoint for SMS scam evaluation with multi-signal heuristic and URL threat assessment.
+- **Strict Privacy Storage Audit**:
+  - Zero-raw-SMS retention rule enforced: `ScanRecord` database model stores exclusively SHA-256 `message_hash`, metadata, categories, and detection reasons. Raw message bodies are never persisted.
+- **Automated Test Suite (50 Tests Passing)**:
+  - Added `backend/tests/test_ssrf_protection.py` (11 tests).
+  - Added `backend/tests/test_threat_providers.py` (15 tests).
+  - Added `backend/tests/test_scan_endpoints.py` (11 tests).
+  - Added `backend/tests/test_url_normalizer.py` (7 tests).
+  - 100% pass rate across all 50 backend unit and integration tests.
+
+---
+
 ## [0.3.0] - Phase 2: Automatic Notification Listener - 2026-11-05
 
 ### Added

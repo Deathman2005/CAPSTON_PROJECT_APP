@@ -59,3 +59,4 @@ class SupportedSmsAppsTest {
         assertEquals(2, allApps.size)
     }
 }
+

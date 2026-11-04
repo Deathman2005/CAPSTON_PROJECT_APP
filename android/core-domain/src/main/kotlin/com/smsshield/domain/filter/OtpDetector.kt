@@ -71,3 +71,4 @@ object OtpDetector {
         return OtpCheckResult.NotOtpOnly
     }
 }
+

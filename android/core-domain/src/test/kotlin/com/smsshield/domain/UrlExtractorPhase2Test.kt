@@ -109,3 +109,4 @@ class UrlExtractorPhase2Test {
         assertTrue(analyzed[0].hasDeceptiveSubdomains, "Deceptive banking keywords on suspicious TLD must be detected")
     }
 }
+

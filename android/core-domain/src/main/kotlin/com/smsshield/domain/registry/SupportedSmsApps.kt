@@ -60,3 +60,4 @@ object SupportedSmsApps {
      */
     fun getAllSupported(): List<SmsAppInfo> = APPROVED_APPS
 }
+

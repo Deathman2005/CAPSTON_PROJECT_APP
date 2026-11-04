@@ -40,3 +40,4 @@ class OtpDetectorTest {
         assertEquals(OtpCheckResult.NotOtpOnly, result)
     }
 }
+
