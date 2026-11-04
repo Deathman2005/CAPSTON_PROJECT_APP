@@ -223,3 +223,4 @@ def test_scan_message_zero_raw_text_storage_privacy(client: TestClient):
         assert unique_canary not in (record.detection_reasons or "")
         assert unique_canary not in (record.recommendation or "")
         assert unique_canary not in (record.sms_model_version or "")
+

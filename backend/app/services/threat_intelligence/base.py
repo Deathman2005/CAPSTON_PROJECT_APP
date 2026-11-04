@@ -49,3 +49,4 @@ class BaseThreatProvider(ABC):
         Must enforce timeout caps and never raise unhandled network exceptions.
         """
         pass
+

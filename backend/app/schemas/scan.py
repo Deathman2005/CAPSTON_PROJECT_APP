@@ -86,3 +86,4 @@ class MessageScanResponse(BaseModel):
     recommendation: str
     model_version: str
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+

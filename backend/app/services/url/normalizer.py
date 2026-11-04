@@ -72,7 +72,7 @@ def normalize_and_sanitize_url(raw_url: str) -> NormalizedUrlInfo:
     # Check for scheme or add default http:// scheme
     if "://" in cleaned:
         candidate = cleaned
-    elif any(cleaned.lower().startswith(p) for p in ("javascript:", "data:", "about:", "mailto:", "tel:", "file:")):
+    elif any(cleaned.lower().startswith(p) for p in ("javascript:", "data:", "about:", "mailto:", "tel:", "file:", "ftp:")):
         scheme_prefix = cleaned.split(":", 1)[0].lower()
         raise ValueError(f"Unsupported URL scheme: {scheme_prefix}. Only HTTP and HTTPS are permitted.")
     else:
@@ -148,3 +148,4 @@ def normalize_and_sanitize_url(raw_url: str) -> NormalizedUrlInfo:
         is_shortened=is_short,
         is_punycode=is_puny,
     )
+

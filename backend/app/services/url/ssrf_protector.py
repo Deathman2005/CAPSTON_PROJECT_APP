@@ -108,3 +108,4 @@ def validate_url_for_safe_inspection(url: str) -> None:
         raise SSRFViolationError("URL does not contain a valid destination host.")
 
     resolve_and_validate_hostname(parsed.hostname)
+

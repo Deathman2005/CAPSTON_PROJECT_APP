@@ -96,3 +96,4 @@ class ThreatAggregator:
             reputation_score = 50.0
 
         return overall_status, results_map, evidence, reputation_score
+

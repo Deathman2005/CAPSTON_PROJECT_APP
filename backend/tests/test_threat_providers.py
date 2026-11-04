@@ -306,3 +306,4 @@ async def test_aggregator_exception_isolation():
     assert "broken" in results_map
     assert results_map["broken"].status == ProviderThreatStatus.UNAVAILABLE
     assert status == ProviderThreatStatus.CLEAN
+

@@ -126,3 +126,4 @@ def test_valid_public_domain_resolution_via_mock():
     with patch("socket.getaddrinfo", return_value=mock_addr_info):
         ips = resolve_and_validate_hostname("secure-banking-portal.org")
         assert "93.184.216.34" in ips
+

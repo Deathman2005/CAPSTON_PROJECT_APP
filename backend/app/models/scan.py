@@ -209,3 +209,4 @@ class UserSetting(Base, UUIDPrimaryKeyMixin, TimestampMixin):
 
     retention_days: Mapped[int] = mapped_column(Integer, nullable=False, default=30)
     monitoring_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+

@@ -143,3 +143,4 @@ async def scan_url(request: UrlScanRequest, db: Session = Depends(get_db)):
         recommendation=recommendation,
         timestamp=datetime.now(timezone.utc),
     )
+

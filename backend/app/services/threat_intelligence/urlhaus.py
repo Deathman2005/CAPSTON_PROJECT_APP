@@ -100,3 +100,4 @@ class URLhausProvider(BaseThreatProvider):
                 latency_ms=latency_ms,
                 message="Internal exception during URLhaus check",
             )
+

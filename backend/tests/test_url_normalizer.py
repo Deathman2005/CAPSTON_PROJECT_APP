@@ -71,3 +71,4 @@ def test_unsupported_scheme_raises():
 
     with pytest.raises(ValueError, match="Unsupported URL scheme"):
         normalize_and_sanitize_url("ftp://internal.repo/bin")
+

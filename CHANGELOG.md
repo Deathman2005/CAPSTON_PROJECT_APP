@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.0] - Phase 4: SMS Machine Learning and Training Pipeline - 2026-11-05
+
+### Added
+- **Text Preprocessor & Entity Normalizer (`backend/app/ml/preprocessor.py`)**:
+  - Implemented `SmsPreprocessor` with NFKC Unicode normalization and lowercase standardization.
+  - Replaces variable sensitive tokens with canonical semantic markers: `<URL>`, `<PHONE>`, `<CURRENCY>`, `<CODE>`, `<EMAIL>`.
+  - Safeguards user privacy by preventing numeric OTPs and raw contact details from entering feature extraction vectors.
+  - Provides pre-masking entity count diagnostics (`extract_entity_counts`).
+- **Domain Linguistic Indicators & Explanation Generator (`backend/app/ml/features.py`)**:
+  - Implemented `LinguisticFeatureExtractor` (Scikit-Learn `BaseEstimator, TransformerMixin`) extracting 11 dense numerical security signals: urgency score, KYC/identity verification demand, financial lure/prize score, credential theft demand, utility disconnection scare, delivery courier lure, entity token indicators, and normalized text length.
+  - Implemented `extract_explanation_reasons` providing human-readable explanations based on triggered threat indicators.
+- **Dataset Registry & Stratified Partition Manager (`backend/app/ml/dataset.py`)**:
+  - Implemented `DatasetManager` registering approved datasets (`DS-01` through `DS-05`) with provenance citations, licenses, record counts, and target classes.
+  - Implemented strict data leakage prevention: exact deduplication on text before partitioning.
+  - Stratified 3-way partition (70% Train, 15% Validation, 15% Test) preserving exact class distributions across splits without text leakage.
+  - Built curated SMS benchmark corpus (`backend/app/ml/data/sms_corpus.csv`) covering all 17 scam categories and authentic legitimate notification classes.
+- **Model Training, Evaluation & Baseline Comparison (`backend/app/ml/trainer.py`)**:
+  - Implemented `SmsModelTrainer` comparing 3 baseline architectures:
+    1. `ComplementNB` (Complement Naive Bayes with sublinear TF-IDF + linguistic features).
+    2. `LogisticRegression` (calibrated probabilities with balanced class weighting).
+    3. `LinearSVC` with Platt scaling (`CalibratedClassifierCV(method='sigmoid')`).
+  - Evaluates un-fabricated hold-out test metrics: Precision, Recall, F1-Score, ROC-AUC, PR-AUC (`average_precision_score`), and Confusion Matrix.
+  - Selected model: `logistic_regression` achieving Test PR-AUC of **0.9683** and Test F1 of **0.8571**.
+  - Serializes winning model pipeline to `backend/app/ml/artifacts/sms_classifier.joblib` and metrics audit log to `backend/app/ml/artifacts/sms_model_metrics.json`.
+- **Production Inference Service (`backend/app/ml/service.py`)**:
+  - Thread-safe singleton `SmsClassifierService` loading trained pipeline once.
+  - Computes calibrated scam probability, risk score (0-100), prediction confidence, and linguistic explanation reasons.
+  - Calibrated decision thresholds ensuring high precision against false positives on authentic banking and transactional OTP messages.
+  - Defensive fallback guarantee (`_heuristic_fallback`) if model pipeline artifact is unavailable.
+- **Model and Dataset Management API Endpoints (`backend/app/api/v1/endpoints/ml.py`)**:
+  - `GET /api/v1/ml/models`: Retrieves active and historical model versions with real evaluation metrics.
+  - `GET /api/v1/ml/datasets`: Returns dataset registry provenance, licenses, and record counts.
+  - `POST /api/v1/ml/retrain`: Executes training pipeline on demand and automatically deploys winning model artifact.
+- **Backend Message Scan Integration (`backend/app/api/v1/endpoints/scan_message.py`)**:
+  - Integrated `POST /api/v1/scan/message` with `SmsClassifierService` for NLP risk scoring and linguistic explanations.
+- **Automated Test Matrix (71 Tests Passing)**:
+  - Added `backend/tests/test_sms_preprocessor.py` (7 tests).
+  - Added `backend/tests/test_sms_features.py` (2 tests).
+  - Added `backend/tests/test_dataset_registry.py` (3 tests).
+  - Added `backend/tests/test_sms_trainer.py` (1 test).
+  - Added `backend/tests/test_sms_service.py` (5 tests).
+  - Added `backend/tests/test_ml_endpoints.py` (3 tests).
+  - 100% pass rate across all 71 backend tests (0 failed).
+
+---
+
 ## [0.4.0] - Phase 3: Backend Threat Intelligence and URL Scanning - 2026-11-05
 
 ### Added
