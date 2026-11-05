@@ -66,3 +66,4 @@ def test_url_feature_extractor_transformer():
     assert isinstance(matrix, np.ndarray)
     assert matrix.shape == (2, len(UrlFeatureExtractor.FEATURE_KEYS))
     assert matrix.dtype == np.float32
+

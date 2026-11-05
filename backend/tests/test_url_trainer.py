@@ -31,3 +31,4 @@ def test_url_model_trainer_execution():
     metrics_path = os.path.join(ARTIFACTS_DIR, "url_model_metrics.json")
     assert os.path.exists(model_path)
     assert os.path.exists(metrics_path)
+

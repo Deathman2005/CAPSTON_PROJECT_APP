@@ -154,3 +154,4 @@ class UrlClassifierService:
             model_version="url_baseline_heuristic_v1",
             is_fallback=True,
         )
+

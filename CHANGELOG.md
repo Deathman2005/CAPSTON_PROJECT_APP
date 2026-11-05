@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.7.0] - Phase 6: Full Integration and Warning Experience - 2026-11-05
+
+### Added
+- **Domain Alert Decision Engine (`android/core-domain/src/main/kotlin/com/smsshield/domain/alert/AlertDecisionEngine.kt`)**:
+  - Implemented pure domain `AlertDecisionEngine` evaluating whether an incoming scan warrants an intrusive user notification.
+  - Generates `AlertNotificationPayload` with calibrated priority levels (`HIGH` for `MALICIOUS`, `DEFAULT` for `SUSPICIOUS`, `NONE` for `SAFE` and `UNKNOWN`).
+  - Strict privacy enforcement: Zero message text, OTP codes, or contact information are ever embedded into notification titles, bodies, or banners.
+- **Backend API Transfer Objects (`android/core-domain/src/main/kotlin/com/smsshield/domain/model/ApiPayloads.kt`)**:
+  - Typed Kotlin data contracts (`MessageScanApiRequest`, `MessageScanApiResponse`, `UrlScanApiRequest`, `UrlScanApiResponse`) exactly matching FastAPI backend schemas.
+- **Android Remote API Client (`android/app/src/main/java/com/smsshield/app/data/remote/`)**:
+  - `SmsShieldApi.kt`: Retrofit service interface defining `POST /api/v1/scan/message` and `POST /api/v1/scan/url`.
+  - `ApiClient.kt`: Resilient Retrofit client singleton supporting dynamic backend base URL configuration from user preferences.
+- **Scan Repository with Defensive Offline Fallback (`android/app/src/main/java/com/smsshield/app/data/repository/ScanRepository.kt`)**:
+  - Orchestrates online backend scanning with fallback to defensive offline heuristic evaluation during network disconnection.
+  - Persists minimal audit metadata directly to local Room database (`ScanRecordEntity`) with zero raw SMS content stored.
+- **Security Alert Notification Manager (`android/app/src/main/java/com/smsshield/app/service/AlertNotificationManager.kt`)**:
+  - Configures dedicated `SMS_SHIELD_SECURITY_ALERTS` notification channel with `IMPORTANCE_HIGH`, heads-up alerting, vibration, and public lockscreen visibility.
+  - Dispatches high-priority system alerts with deep-link navigation to `MainActivity` passing scan classification and risk score.
+- **Real-Time Notification Listener Integration (`android/app/src/main/java/com/smsshield/app/service/SMSNotificationListener.kt`)**:
+  - Connected `SMSNotificationListener` to `ScanRepository` and `AlertNotificationManager`.
+  - Automatically triggers background scan upon incoming SMS from supported packages, deduplicates repetitive notifications, and posts high-priority warning alerts when malicious/suspicious content is detected.
+- **Interactive Scanner UI Updates (`ScannerViewModel.kt` & `ScannerScreen.kt`)**:
+  - Updated `ScannerViewModel` to integrate `ScanRepository` for both message text and individual URL inspection.
+  - Enhanced `ScannerScreen` (Screen 4 & Screen 5) with distinct badges for `SAFE`, `SUSPICIOUS`, `MALICIOUS`, and `UNKNOWN` (never defaulting unknown to safe), risk score gauge (0-100), triggered indicators, actionable recommendations, link inspection shortcuts, and audit metadata.
+- **Unit Test Suite Expansion (39 Tests Passing)**:
+  - Added `AlertDecisionEngineTest.kt` in `:core-domain` (5 tests covering `MALICIOUS` high priority, `SUSPICIOUS` default priority, `SAFE`/`UNKNOWN` suppression, and strict zero-leakage privacy assertions).
+  - 100% pass rate across all 39 `:core-domain` unit tests and all 88 backend pytest tests.
+
+---
+
 ## [0.6.0] - Phase 5: URL Machine Learning and Combined Risk Engine - 2026-11-05
 
 ### Added

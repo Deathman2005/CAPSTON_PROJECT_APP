@@ -4,17 +4,15 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import com.smsshield.app.data.local.AppDatabase
-import com.smsshield.app.data.local.ScanRecordEntity
 import com.smsshield.app.data.preferences.UserPreferencesRepository
+import com.smsshield.app.data.repository.ScanRepository
+import com.smsshield.domain.alert.AlertDecisionEngine
 import com.smsshield.domain.detector.DuplicateDetector
 import com.smsshield.domain.detector.IngestionCheckResult
 import com.smsshield.domain.model.ScanItem
-import com.smsshield.domain.model.SecurityClassification
-import com.smsshield.domain.model.ThreatCategory
 import com.smsshield.domain.registry.SupportedSmsApps
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
-import java.util.UUID
 
 /**
  * Opt-in NotificationListenerService for real-time security alerting.
@@ -134,66 +132,28 @@ class SMSNotificationListener : NotificationListenerService() {
                 return
             }
             is IngestionCheckResult.Accepted -> {
-                // Proceed with local heuristic evaluation
+                // Proceed with scanning
             }
         }
 
-        // 5. Safe Local Processing (Off main thread)
-        val lower = parsed.messageText.lowercase()
-        val reasons = mutableListOf<String>()
-        var classification = SecurityClassification.SAFE
-        var riskScore: Double? = 10.0
-        var category = ThreatCategory.BENIGN
-        var recommendation = "Message appears authentic."
-
-        val hasUrgentThreat = lower.contains("blocked") || lower.contains("suspended") || lower.contains("deactivated") || lower.contains("immediate")
-        val hasKyc = lower.contains("kyc") || lower.contains("pan") || lower.contains("aadhaar")
-        val hasOtpDemand = lower.contains("otp") || lower.contains("pin") || lower.contains("password")
-        val hasBank = lower.contains("bank") || lower.contains("sbi") || lower.contains("hdfc") || lower.contains("icici") || lower.contains("upi")
-
-        val urlStrings = parsed.extractedUrls.map { it.normalized }
-
-        if (parsed.extractedUrls.isNotEmpty() && (hasUrgentThreat || hasKyc || hasOtpDemand || hasBank)) {
-            classification = SecurityClassification.MALICIOUS
-            riskScore = 95.0
-            category = if (hasBank) ThreatCategory.BANK_IMPERSONATION else ThreatCategory.PHISHING_URL
-            if (hasUrgentThreat) reasons.add("Urgent threat of account deactivation/suspension")
-            if (hasKyc) reasons.add("Unverified demand to update KYC credentials")
-            reasons.add("Contains unverified web link: ${urlStrings.first()}")
-            recommendation = "DO NOT click links or supply credentials. SBI/HDFC/banks never request KYC via SMS links."
-        } else if (parsed.extractedUrls.isNotEmpty()) {
-            classification = SecurityClassification.SUSPICIOUS
-            riskScore = 65.0
-            category = ThreatCategory.PHISHING_URL
-            reasons.add("Message contains external web links requiring inspection")
-            recommendation = "Exercise caution with unverified links."
-        } else if (hasUrgentThreat && hasOtpDemand) {
-            classification = SecurityClassification.SUSPICIOUS
-            riskScore = 70.0
-            category = ThreatCategory.OTP_THEFT
-            reasons.add("Suspicious demand for verification credentials")
-            recommendation = "Never share OTP or banking passwords with anyone."
-        }
-
-        val scanItem = ScanItem(
-            id = UUID.randomUUID().toString(),
-            timestamp = parsed.timestamp,
-            classification = classification,
-            riskScore = riskScore,
-            confidence = 0.90,
-            urlCount = parsed.extractedUrls.size,
-            extractedUrls = urlStrings,
-            detectionReasons = reasons,
-            recommendation = recommendation,
-            sourceCategory = "notification_auto"
+        // 5. Ingest via ScanRepository (calls backend AI pipeline, falls back cleanly to local heuristic if offline)
+        val scanRepository = ScanRepository(applicationContext, database, preferencesRepository)
+        val scanResult = scanRepository.scanMessage(
+            messageText = parsed.messageText,
+            sourceType = "notification_auto",
+            sourcePackage = parsed.packageName
         )
 
-        // 6. Persistence (Zero Raw SMS Content Stored)
-        try {
-            database.scanRecordDao().insertScan(ScanRecordEntity.fromDomain(scanItem))
-            Log.i(TAG, "Processed notification scan: classification=${classification.name}, urls=${parsed.extractedUrls.size}, score=$riskScore")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error saving scan record: ${e.message}")
+        scanResult.onSuccess { scanItem ->
+            Log.i(TAG, "Processed notification scan: classification=${scanItem.classification.name}, urls=${scanItem.urlCount}, score=${scanItem.riskScore}")
+
+            // 6. Security Alert Notification if warranted (evaluated by AlertDecisionEngine)
+            val alertPayload = AlertDecisionEngine.evaluate(scanItem)
+            if (alertPayload.shouldAlert) {
+                AlertNotificationManager.showSecurityAlert(applicationContext, scanItem)
+            }
+        }.onFailure { err ->
+            Log.e(TAG, "Failed to scan notification message: ${err.message}")
         }
     }
 

@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.rememberNavController
 import com.smsshield.app.data.local.AppDatabase
 import com.smsshield.app.data.preferences.UserPreferencesRepository
+import com.smsshield.app.data.repository.ScanRepository
 import com.smsshield.app.ui.navigation.SMSShieldNavGraph
 import com.smsshield.app.ui.theme.SMSShieldTheme
 import com.smsshield.app.ui.theme.ShieldCyan
@@ -36,10 +37,11 @@ class MainActivity : ComponentActivity() {
         val preferencesRepository = UserPreferencesRepository(applicationContext)
         val database = AppDatabase.getDatabase(applicationContext)
         val scanRecordDao = database.scanRecordDao()
+        val scanRepository = ScanRepository(applicationContext, database, preferencesRepository)
 
         val onboardingViewModel = OnboardingViewModel(preferencesRepository)
         val homeViewModel = HomeViewModel(preferencesRepository, scanRecordDao)
-        val scannerViewModel = ScannerViewModel(scanRecordDao)
+        val scannerViewModel = ScannerViewModel(scanRepository)
         val settingsViewModel = SettingsViewModel(preferencesRepository, scanRecordDao)
 
         setContent {

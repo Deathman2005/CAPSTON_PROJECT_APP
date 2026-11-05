@@ -206,7 +206,10 @@ fun ScannerScreen(
             }
 
             is ScanUiState.Success -> {
-                ScanResultCard(scanItem = state.result)
+                ScanResultCard(
+                    scanItem = state.result,
+                    onInspectUrl = { url -> viewModel.scanUrl(url) }
+                )
             }
 
             else -> {}
@@ -217,7 +220,10 @@ fun ScannerScreen(
 }
 
 @Composable
-fun ScanResultCard(scanItem: ScanItem) {
+fun ScanResultCard(
+    scanItem: ScanItem,
+    onInspectUrl: ((String) -> Unit)? = null
+) {
     val (statusColor, statusBg) = when (scanItem.classification) {
         SecurityClassification.SAFE -> ShieldSafe to ShieldSafe.copy(alpha = 0.15f)
         SecurityClassification.SUSPICIOUS -> ShieldWarning to ShieldWarning.copy(alpha = 0.15f)
@@ -294,18 +300,47 @@ fun ScanResultCard(scanItem: ScanItem) {
 
             // Extracted Link Details
             if (scanItem.extractedUrls.isNotEmpty()) {
-                Column {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text("Identified Links (${scanItem.urlCount})", fontSize = 11.sp, color = Color.Gray)
                     scanItem.extractedUrls.forEach { url ->
-                        Text(
-                            text = url,
-                            fontSize = 12.sp,
-                            color = ShieldCyan,
-                            maxLines = 1,
-                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = url,
+                                fontSize = 12.sp,
+                                color = ShieldCyan,
+                                maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f)
+                            )
+                            if (onInspectUrl != null) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                OutlinedButton(
+                                    onClick = { onInspectUrl(url) },
+                                    modifier = Modifier.height(28.dp),
+                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, ShieldCyan)
+                                ) {
+                                    Text("Inspect", fontSize = 10.sp, color = ShieldCyan)
+                                }
+                            }
+                        }
                     }
                 }
+            }
+
+            Divider(color = ShieldBorder)
+
+            // Audit Info
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("Source: ${scanItem.sourceCategory}", fontSize = 10.sp, color = Color.Gray)
+                Text("Scan ID: ${scanItem.id.take(8)}...", fontSize = 10.sp, color = Color.Gray)
             }
         }
     }

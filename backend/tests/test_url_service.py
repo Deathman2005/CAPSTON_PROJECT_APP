@@ -44,3 +44,4 @@ def test_url_service_fallback_resilience():
     assert res.is_fallback is True
     assert res.feature_risk_score >= 50.0
     assert len(res.lexical_indicators) > 0
+
