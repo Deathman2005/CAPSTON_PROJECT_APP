@@ -57,3 +57,4 @@ def test_heuristic_fallback_resilience():
     assert result.is_fallback is True
     assert result.classification == "MALICIOUS"
     assert result.risk_score >= 90.0
+

@@ -70,3 +70,4 @@ def test_extract_entity_counts(preprocessor: SmsPreprocessor):
     assert counts["currencies"] >= 1
     assert counts["codes"] >= 1
     assert counts["urls"] >= 1
+

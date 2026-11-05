@@ -57,3 +57,4 @@ def test_stratified_split_preserves_class_balance_and_disjoint():
     for partition in [train_df, val_df, test_df]:
         assert 0 in partition["label"].values
         assert 1 in partition["label"].values
+

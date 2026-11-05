@@ -1,0 +1,81 @@
+{
+  "version_id": "url_logistic_regression_20261105",
+  "algorithm": "logistic_regression",
+  "deployed_at": "2026-11-05T13:08:28.155289+00:00",
+  "metrics": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "accuracy": 1.0,
+    "roc_auc": 1.0,
+    "pr_auc": 1.0,
+    "confusion_matrix": [
+      [
+        7,
+        0
+      ],
+      [
+        0,
+        5
+      ]
+    ]
+  },
+  "all_candidates": {
+    "logistic_regression": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "accuracy": 1.0,
+      "roc_auc": 1.0,
+      "pr_auc": 1.0,
+      "confusion_matrix": [
+        [
+          7,
+          0
+        ],
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    "random_forest": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1_score": 0.8889,
+      "accuracy": 0.9167,
+      "roc_auc": 1.0,
+      "pr_auc": 1.0,
+      "confusion_matrix": [
+        [
+          7,
+          0
+        ],
+        [
+          1,
+          4
+        ]
+      ]
+    },
+    "hist_gradient_boosting": {
+      "precision": 1.0,
+      "recall": 0.6,
+      "f1_score": 0.75,
+      "accuracy": 0.8333,
+      "roc_auc": 0.7571,
+      "pr_auc": 0.7976,
+      "confusion_matrix": [
+        [
+          7,
+          0
+        ],
+        [
+          2,
+          3
+        ]
+      ]
+    }
+  },
+  "train_size": 54,
+  "test_size": 12
+}

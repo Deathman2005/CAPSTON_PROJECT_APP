@@ -34,3 +34,4 @@ def test_trainer_execution_and_metrics_verification():
     metrics_path = os.path.join(ARTIFACTS_DIR, "sms_model_metrics.json")
     assert os.path.exists(model_path)
     assert os.path.exists(metrics_path)
+

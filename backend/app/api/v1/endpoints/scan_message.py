@@ -4,7 +4,7 @@ import re
 import uuid
 import hashlib
 from datetime import datetime, timezone
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -16,10 +16,13 @@ from app.services.url.ssrf_protector import validate_url_for_safe_inspection, SS
 from app.services.threat_intelligence.aggregator import ThreatAggregator
 from app.services.threat_intelligence.base import ProviderThreatStatus
 from app.ml.service import SmsClassifierService
+from app.ml.url_service import UrlClassifierService
+from app.services.risk_engine.engine import CombinedRiskEngine
 
 router = APIRouter(prefix="/scan", tags=["message-scanner"])
 aggregator = ThreatAggregator()
 sms_service = SmsClassifierService.get_instance()
+url_service = UrlClassifierService.get_instance()
 
 # Regex to find embedded URLs in message text
 URL_REGEX = re.compile(
@@ -45,7 +48,7 @@ def extract_urls_from_text(text: str) -> List[str]:
     "/message",
     response_model=MessageScanResponse,
     summary="Scan and Analyze SMS Message",
-    description="Inspects SMS text using ML NLP classification, linguistic markers, and embedded malicious links.",
+    description="Inspects SMS text using ML NLP classification, threat intelligence, URL lexical ML, and combined risk engine.",
 )
 async def scan_message(request: MessageScanRequest, db: Session = Depends(get_db)):
     """Evaluate SMS message content and embedded URLs."""
@@ -64,49 +67,61 @@ async def scan_message(request: MessageScanRequest, db: Session = Depends(get_db
 
     # 2. Extract and inspect embedded URLs
     urls = request.extracted_urls or extract_urls_from_text(text)
-    url_threat_detected = False
     checked_urls = []
-    url_reasons = []
+    threat_intel_evidence = []
+    url_lexical_indicators = []
+    worst_threat_status = ProviderThreatStatus.CLEAN if urls else ProviderThreatStatus.UNKNOWN
+    max_threat_score = 0.0
+    max_lexical_score: Optional[float] = None
+    url_version = "url_baseline_v1"
 
     for raw_u in urls[:3]:  # inspect up to 3 links per message
         try:
             norm_info = normalize_and_sanitize_url(raw_u)
             validate_url_for_safe_inspection(norm_info.normalized_url)
-            threat_status, _, _, _ = await aggregator.check_url(norm_info.normalized_url)
 
+            # Upstream Threat Intelligence Feeds
+            threat_status, _, threat_ev, threat_sc = await aggregator.check_url(norm_info.normalized_url)
+            threat_intel_evidence.extend(threat_ev)
             if threat_status == ProviderThreatStatus.MALICIOUS:
-                url_threat_detected = True
-                url_reasons.append(f"Confirmed malicious link identified: {norm_info.hostname}")
-            elif threat_status == ProviderThreatStatus.SUSPICIOUS or norm_info.is_ip_address:
-                url_reasons.append(f"Suspicious link features detected on domain: {norm_info.hostname}")
+                worst_threat_status = ProviderThreatStatus.MALICIOUS
+                max_threat_score = max(max_threat_score, threat_sc)
+            elif threat_status == ProviderThreatStatus.SUSPICIOUS and worst_threat_status != ProviderThreatStatus.MALICIOUS:
+                worst_threat_status = ProviderThreatStatus.SUSPICIOUS
+                max_threat_score = max(max_threat_score, threat_sc)
+            elif worst_threat_status not in (ProviderThreatStatus.MALICIOUS, ProviderThreatStatus.SUSPICIOUS):
+                worst_threat_status = threat_status
+                max_threat_score = max(max_threat_score, threat_sc)
+
+            # URL Lexical Machine Learning Classifier
+            lexical_res = url_service.predict(norm_info.normalized_url)
+            url_lexical_indicators.extend(lexical_res.lexical_indicators)
+            url_version = lexical_res.model_version
+            if max_lexical_score is None or lexical_res.feature_risk_score > max_lexical_score:
+                max_lexical_score = lexical_res.feature_risk_score
 
             checked_urls.append(norm_info.redacted_url)
-        except (ValueError, SSRFViolationError):
-            url_reasons.append(f"Suspicious or unroutable link format: {raw_u}")
+        except (ValueError, SSRFViolationError) as err:
+            url_lexical_indicators.append(f"Suspicious or unroutable link format: {raw_u}")
+            worst_threat_status = ProviderThreatStatus.SUSPICIOUS
+            max_threat_score = max(max_threat_score, 70.0)
 
-    # 3. Combine ML Classification and Threat Intelligence
-    all_reasons = list(dict.fromkeys(ml_result.reasons + url_reasons))
-
-    classification: str
-    risk_score: float
-    confidence: float
-    recommendation: str
-
-    if url_threat_detected or ml_result.classification == "MALICIOUS":
-        classification = "MALICIOUS"
-        risk_score = max(ml_result.risk_score, 95.0)
-        confidence = max(ml_result.confidence, 0.92)
-        recommendation = "HIGH-RISK SCAM: Do not click any links or share information. Banks never demand KYC updates or credentials via SMS links."
-    elif ml_result.classification == "SUSPICIOUS" or (urls and len(urls) > 0):
-        classification = "SUSPICIOUS"
-        risk_score = max(ml_result.risk_score, 65.0)
-        confidence = max(ml_result.confidence, 0.80)
-        recommendation = "SUSPICIOUS MESSAGE: Exercise caution. Verify directly with your bank or service provider using official customer care channels."
-    else:
-        classification = "SAFE"
-        risk_score = ml_result.risk_score
-        confidence = ml_result.confidence
-        recommendation = "Message appears authentic. Standard vigilance applies."
+    # 3. Combined Multi-Signal Risk Engine
+    risk_assessment = CombinedRiskEngine.evaluate(
+        sms_nlp_score=ml_result.risk_score,
+        sms_classification=ml_result.classification,
+        sms_confidence=ml_result.confidence,
+        sms_reasons=ml_result.reasons,
+        sms_model_version=ml_result.model_version,
+        threat_intel_status=worst_threat_status,
+        threat_intel_score=max_threat_score,
+        threat_intel_evidence=threat_intel_evidence,
+        url_lexical_score=max_lexical_score,
+        url_lexical_confidence=0.85,
+        url_lexical_indicators=url_lexical_indicators,
+        url_model_version=url_version,
+        has_urls=len(urls) > 0,
+    )
 
     scan_id = uuid.uuid4()
 
@@ -117,14 +132,14 @@ async def scan_message(request: MessageScanRequest, db: Session = Depends(get_db
             timestamp=datetime.now(timezone.utc),
             source_category=request.source_type,
             source_package=request.source_package,
-            classification=classification,
-            risk_score=risk_score,
-            confidence=confidence,
+            classification=risk_assessment.classification,
+            risk_score=risk_assessment.risk_score,
+            confidence=risk_assessment.confidence,
             url_count=len(urls),
-            sms_model_version=ml_result.model_version,
+            sms_model_version=f"{ml_result.model_version}|{url_version}",
             message_hash=message_hash,
-            detection_reasons="||".join(all_reasons),
-            recommendation=recommendation,
+            detection_reasons="||".join(risk_assessment.reasons),
+            recommendation=risk_assessment.recommendation,
         )
         db.add(record)
         db.commit()
@@ -133,12 +148,12 @@ async def scan_message(request: MessageScanRequest, db: Session = Depends(get_db
 
     return MessageScanResponse(
         scan_id=scan_id,
-        classification=classification,
-        confidence=confidence,
-        risk_score=risk_score,
-        reasons=all_reasons,
+        classification=risk_assessment.classification,
+        confidence=risk_assessment.confidence,
+        risk_score=risk_assessment.risk_score,
+        reasons=risk_assessment.reasons,
         extracted_urls=checked_urls,
-        recommendation=recommendation,
-        model_version=ml_result.model_version,
+        recommendation=risk_assessment.recommendation,
+        model_version=f"{ml_result.model_version}|{url_version}",
         timestamp=datetime.now(timezone.utc),
     )

@@ -12,16 +12,19 @@ from app.services.url.normalizer import normalize_and_sanitize_url
 from app.services.url.ssrf_protector import validate_url_for_safe_inspection, SSRFViolationError
 from app.services.threat_intelligence.aggregator import ThreatAggregator
 from app.services.threat_intelligence.base import ProviderThreatStatus
+from app.ml.url_service import UrlClassifierService
+from app.services.risk_engine.engine import CombinedRiskEngine
 
 router = APIRouter(prefix="/scan", tags=["url-scanner"])
 aggregator = ThreatAggregator()
+url_service = UrlClassifierService.get_instance()
 
 
 @router.post(
     "/url",
     response_model=UrlScanResponse,
     summary="Scan and Analyze URL",
-    description="Normalizes URL, verifies SSRF safety, queries threat intelligence feeds, and evaluates lexical risk features.",
+    description="Normalizes URL, verifies SSRF safety, queries threat intelligence feeds, evaluates lexical ML features, and synthesizes combined risk.",
 )
 async def scan_url(request: UrlScanRequest, db: Session = Depends(get_db)):
     """Evaluate target URL for phishing, malware, and social engineering threats."""
@@ -46,44 +49,38 @@ async def scan_url(request: UrlScanRequest, db: Session = Depends(get_db)):
         )
 
     # 3. Query Threat Intelligence Feeds
-    overall_threat, provider_results, evidence, threat_score = await aggregator.check_url(norm_info.normalized_url)
+    overall_threat, provider_results, threat_evidence, threat_score = await aggregator.check_url(norm_info.normalized_url)
 
-    # 4. Lexical Risk Heuristics
-    lexical_evidence = []
-    if norm_info.is_ip_address:
-        lexical_evidence.append("Hostname is a raw IP address (frequently associated with malicious servers)")
-    if norm_info.is_shortened:
-        lexical_evidence.append("URL shortening service masks actual destination destination")
-    if norm_info.is_punycode:
-        lexical_evidence.append("Punycode domain detected (potential IDN homograph impersonation attack)")
+    # 4. Lexical Machine Learning Evaluation
+    lexical_result = url_service.predict(norm_info.normalized_url)
 
-    all_evidence = evidence + lexical_evidence
+    # 5. Combined Multi-Signal Risk Engine
+    risk_assessment = CombinedRiskEngine.evaluate(
+        sms_nlp_score=0.0,
+        sms_classification="SAFE",
+        threat_intel_status=overall_threat,
+        threat_intel_score=threat_score,
+        threat_intel_evidence=threat_evidence,
+        url_lexical_score=lexical_result.feature_risk_score,
+        url_lexical_confidence=lexical_result.confidence,
+        url_lexical_indicators=lexical_result.lexical_indicators,
+        url_model_version=lexical_result.model_version,
+        has_urls=True,
+    )
 
-    # Determine final classification and score
-    final_classification: str
-    final_risk_score: float
-
-    if overall_threat == ProviderThreatStatus.MALICIOUS:
-        final_classification = "malicious"
-        final_risk_score = max(threat_score, 95.0)
-        recommendation = "MALICIOUS URL: Do not visit this website or download files. Highly dangerous destination."
-    elif overall_threat == ProviderThreatStatus.SUSPICIOUS or norm_info.is_ip_address:
-        final_classification = "suspicious"
-        final_risk_score = max(threat_score, 70.0)
-        recommendation = "SUSPICIOUS URL: Exercise extreme caution. Domain exhibits deceptive features or partial flags."
-    elif overall_threat == ProviderThreatStatus.CLEAN:
-        final_classification = "benign"
-        final_risk_score = 10.0
-        recommendation = "BENIGN: Verified clean across configured threat intelligence databases."
-    else:
-        # NON-NEGOTIABLE RULE: Insufficient evidence must be classified as unknown
-        final_classification = "unknown"
-        final_risk_score = 50.0
-        recommendation = "UNKNOWN REPUTATION: No threat reports found in threat databases, but URL is unverified. Proceed with caution."
+    # Map engine classification to URL response schema format
+    cls_map = {
+        "SAFE": "benign",
+        "SUSPICIOUS": "suspicious",
+        "MALICIOUS": "malicious",
+        "UNKNOWN": "unknown",
+    }
+    final_classification = cls_map.get(risk_assessment.classification, "unknown")
+    final_risk_score = risk_assessment.risk_score
 
     scan_id = uuid.uuid4()
 
-    # 5. Persist to Database (Redacted URL only, zero sensitive tokens)
+    # 6. Persist to Database (Redacted URL only, zero sensitive tokens)
     try:
         url_record = UrlScanResult(
             id=scan_id,
@@ -111,9 +108,8 @@ async def scan_url(request: UrlScanRequest, db: Session = Depends(get_db)):
             db.add(prov_rec)
 
         db.commit()
-    except Exception as exc:
+    except Exception:
         db.rollback()
-        # Non-fatal database persistence error
 
     # Format response
     providers_schema_map = {
@@ -139,8 +135,7 @@ async def scan_url(request: UrlScanRequest, db: Session = Depends(get_db)):
         threat_intelligence_results=providers_schema_map,
         final_url_classification=final_classification,
         risk_score=final_risk_score,
-        evidence=all_evidence,
-        recommendation=recommendation,
+        evidence=risk_assessment.reasons,
+        recommendation=risk_assessment.recommendation,
         timestamp=datetime.now(timezone.utc),
     )
-

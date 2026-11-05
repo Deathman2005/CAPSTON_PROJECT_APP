@@ -45,3 +45,4 @@ def test_retrain_endpoint(client: TestClient):
     assert "selected_model" in data
     assert "version_id" in data
     assert data["test_pr_auc"] > 0.0
+

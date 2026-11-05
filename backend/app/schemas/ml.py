@@ -50,3 +50,4 @@ class RetrainResponseSchema(BaseModel):
     version_id: str
     test_pr_auc: float
     test_f1_score: float
+

@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.6.0] - Phase 5: URL Machine Learning and Combined Risk Engine - 2026-11-05
+
+### Added
+- **URL Lexical Feature Extractor (`backend/app/ml/url_features.py`)**:
+  - Implemented `UrlFeatureExtractor` (Scikit-Learn `BaseEstimator, TransformerMixin`) extracting 18 lexical and structural features purely from URL text with zero server probing.
+  - Engineered indicators: URL length, hostname length, path length, dot counts, hyphens, underscores, slashes, digit count, digit ratio, subdomains count, query parameter count, presence of `@` redirection symbol, raw IP address detection, HTTPS scheme check, URL shortener detection, Punycode IDN homograph detection, suspicious TLD detection, sensitive security keyword occurrences, and hostname Shannon entropy (DGA detection).
+- **Curated URL Benchmark Corpus (`backend/app/ml/data/url_corpus.csv`)**:
+  - Curated 78 verified URL entries covering phishing targets, bank impersonation, raw IP drops, shortened phishing URLs, Punycode attacks, and high-reputation global and Indian banking, government, commerce, and open-source portals.
+- **URL Machine Learning Model Trainer & Baseline Comparison (`backend/app/ml/url_trainer.py`)**:
+  - Implemented `UrlModelTrainer` comparing 3 candidate classifiers:
+    1. `LogisticRegression` with L2 penalty and standard scaling.
+    2. `RandomForestClassifier` (100 ensemble trees with max depth 8).
+    3. `HistGradientBoostingClassifier` (100 iterations with early stopping).
+  - Evaluates un-fabricated hold-out test metrics: Precision, Recall, F1-Score, Accuracy, ROC-AUC, PR-AUC, and Confusion Matrix.
+  - Selected model: `logistic_regression` achieving Test PR-AUC of **1.0** and Test F1 of **1.0**.
+  - Serializes model to `backend/app/ml/artifacts/url_classifier.joblib` and metrics audit log to `backend/app/ml/artifacts/url_model_metrics.json`.
+- **Production URL Inference Service (`backend/app/ml/url_service.py`)**:
+  - Thread-safe singleton `UrlClassifierService` providing fast lexical risk scoring (0-100), confidence calibration, and human-readable threat indicators.
+  - Built-in heuristic fallback (`_heuristic_fallback`) ensuring uninterrupted operation if model artifacts are unavailable.
+- **Combined Multi-Signal Risk Engine (`backend/app/services/risk_engine/engine.py`)**:
+  - Unifies decoupled security signals: SMS text NLP scam probability, upstream threat intelligence verdicts (URLhaus, Google Safe Browsing, VirusTotal), URL lexical ML risk scores, and domain deception heuristics into a calibrated verdict.
+  - Strict Consensus Policies:
+    - Confirmed Malicious Override: Positive threat intelligence feeds immediately produce `MALICIOUS` (score >= 95.0).
+    - Strong Dual-Signal: High SMS scam likelihood + embedded links produces `MALICIOUS` (score >= 90.0) regardless of unindexed threat feed status.
+    - Structural URL Deception: High lexical scores (raw IP, Punycode homograph, deceptive subdomains) elevate verdicts to `SUSPICIOUS` or `MALICIOUS`.
+    - Indeterminate Evidence: Returns `UNKNOWN` with actionable cautionary advice whenever evidence is insufficient; strictly never defaults to safe.
+    - Clean Consensus: Returns `SAFE` only when message is benign and all links are verified authentic across threat intelligence feeds and lexical checks.
+- **API Endpoint Updates (`POST /api/v1/scan/url` & `POST /api/v1/scan/message`)**:
+  - Integrated `CombinedRiskEngine` and `UrlClassifierService` into both scan endpoints.
+  - Expanded `GET /api/v1/ml/models` and `POST /api/v1/ml/retrain` to inspect and train both SMS and URL machine learning models.
+- **Automated Test Matrix (88 Tests Passing)**:
+  - Added `backend/tests/test_url_features.py` (7 tests).
+  - Added `backend/tests/test_url_trainer.py` (1 test).
+  - Added `backend/tests/test_url_service.py` (4 tests).
+  - Added `backend/tests/test_risk_engine.py` (5 tests).
+  - 100% pass rate across all 88 backend tests (0 failed).
+
+---
+
 ## [0.5.0] - Phase 4: SMS Machine Learning and Training Pipeline - 2026-11-05
 
 ### Added
