@@ -1,7 +1,7 @@
 {
   "version_id": "url_logistic_regression_20261105",
   "algorithm": "logistic_regression",
-  "deployed_at": "2026-11-05T13:34:53.240465+00:00",
+  "deployed_at": "2026-11-05T16:37:58.146841+00:00",
   "metrics": {
     "precision": 1.0,
     "recall": 1.0,

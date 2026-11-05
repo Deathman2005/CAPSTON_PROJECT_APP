@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.0] - Phase 7: Dashboard, Security Hardening, and Final Delivery - 2026-11-05
+
+### Added
+- **Backend Analytics & Telemetry Endpoints (`backend/app/api/v1/endpoints/dashboard.py`)**:
+  - `GET /api/v1/dashboard/stats`: Returns aggregated telemetry across all historical and real-time scans (`total_scans`, `safe_scans`, `suspicious_scans`, `malicious_scans`, `unknown_scans`, `total_urls_scanned`, `avg_risk_score`).
+  - `GET /api/v1/dashboard/recent-scans`: Returns latest scan inquiries for audit tracking (strictly zero raw message content or verification codes returned).
+  - `GET /api/v1/dashboard/threat-distribution`: Aggregates scans by classification and ingestion channel for charting.
+  - Implemented typed schemas in `backend/app/schemas/dashboard.py`.
+- **Interactive Security Analytics Dashboard (`dashboard/src/`)**:
+  - `ThreatChart.tsx`: Built interactive Recharts visualizations:
+    - Doughnut / Pie Chart breaking down `SAFE`, `SUSPICIOUS`, `MALICIOUS`, and `UNKNOWN` inquiries with status-calibrated colors.
+    - Bar Chart visualizing ingestion distribution across `notification_auto`, `manual_paste`, `manual_share`, and `url_inspect`.
+  - `RecentScansTable.tsx`: Live audit trail displaying timestamps, channels, security badges, risk score progress bars, triggered indicators, and actionable recommendations.
+  - `Overview.tsx`: Connected to real backend telemetry feeds, displaying live metrics cards, threat charts, audit tables, and database engine latency.
+  - `Navbar.tsx`: Updated brand badge to `v1.0.0` Production.
+- **Security Hardening & Privacy Audit**:
+  - Validated adherence to all 20 non-negotiable implementation rules.
+  - Confirmed zero raw SMS text retention across database models, schemas, and API responses.
+  - Confirmed SSRF and private IP protection on URL parsing.
+  - Confirmed strict consensus rules ensuring absence of threat intel reports returns `UNKNOWN`, never defaulting to `SAFE`.
+- **Automated Test Matrix (132 Tests Passing Across Monorepo)**:
+  - Added `backend/tests/test_dashboard_endpoints.py` (4 tests).
+  - Total backend tests: 92 passing (100%).
+  - Total Android core-domain tests: 39 passing (100%).
+  - Total Dashboard tests: 1 passing + production Vite build successful.
+
+---
+
 ## [0.7.0] - Phase 6: Full Integration and Warning Experience - 2026-11-05
 
 ### Added

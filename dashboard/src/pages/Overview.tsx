@@ -10,17 +10,35 @@ import {
   CheckCircle2,
   Terminal,
 } from 'lucide-react';
-import { HealthResponse, ProvidersHealthResponse } from '../services/api';
+import {
+  HealthResponse,
+  ProvidersHealthResponse,
+  DashboardStats,
+  ThreatDistributionResponse,
+  RecentScanItem,
+} from '../services/api';
 import { MetricCard } from '../components/MetricCard';
 import { StatusBadge } from '../components/StatusBadge';
+import { ThreatChart } from '../components/ThreatChart';
+import { RecentScansTable } from '../components/RecentScansTable';
 
 interface OverviewProps {
   health: HealthResponse | null;
   providers: ProvidersHealthResponse | null;
+  stats: DashboardStats | null;
+  distribution: ThreatDistributionResponse | null;
+  recentScans: RecentScanItem[];
   error: string | null;
 }
 
-export const Overview: React.FC<OverviewProps> = ({ health, providers, error }) => {
+export const Overview: React.FC<OverviewProps> = ({
+  health,
+  providers,
+  stats,
+  distribution,
+  recentScans,
+  error,
+}) => {
   return (
     <div className="space-y-6">
       {/* Top Banner / Error */}
@@ -37,36 +55,42 @@ export const Overview: React.FC<OverviewProps> = ({ health, providers, error }) 
         </div>
       )}
 
-      {/* Primary Metrics (Actual data - starting at 0 for initial deployment) */}
+      {/* Primary Metrics (Live data from backend) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Total Scans"
-          value={0}
+          value={stats?.total_scans ?? 0}
           subtitle="Real-time SMS & URL inquiries"
           icon={Radio}
         />
         <MetricCard
           title="Safe Messages"
-          value={0}
+          value={stats?.safe_scans ?? 0}
           subtitle="Verified authentic SMS"
           icon={CheckCircle2}
           variant="safe"
         />
         <MetricCard
           title="Suspicious Messages"
-          value={0}
+          value={stats?.suspicious_scans ?? 0}
           subtitle="Social engineering & fraud lures"
           icon={AlertTriangle}
           variant="warning"
         />
         <MetricCard
           title="Malicious URLs"
-          value={0}
+          value={stats?.malicious_scans ?? 0}
           subtitle="Active phishing & malware links"
           icon={Flame}
           variant="danger"
         />
       </div>
+
+      {/* Visual Threat Charts (Recharts) */}
+      <ThreatChart distribution={distribution} />
+
+      {/* Recent Scans Audit Trail */}
+      <RecentScansTable scans={recentScans} />
 
       {/* System Infrastructure Telemetry Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -119,7 +143,7 @@ export const Overview: React.FC<OverviewProps> = ({ health, providers, error }) 
               <Globe className="w-5 h-5 text-cyan-400" />
               <h2 className="font-semibold text-white">Threat Intelligence Adapters</h2>
             </div>
-            <span className="text-xs text-slate-500 font-mono">PHASE 0 FOUNDATION</span>
+            <span className="text-xs text-cyan-400 font-mono">LIVE CONNECTIVITY</span>
           </div>
 
           <div className="space-y-3">
@@ -145,41 +169,41 @@ export const Overview: React.FC<OverviewProps> = ({ health, providers, error }) 
         </div>
       </div>
 
-      {/* Engineering Architecture Status */}
+      {/* Engineering Architecture & Privacy Guarantee */}
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
         <div className="flex items-center space-x-2.5 pb-4 border-b border-slate-800">
           <Terminal className="w-5 h-5 text-cyan-400" />
-          <h2 className="font-semibold text-white">Phase 0 Architecture Verification Ledger</h2>
+          <h2 className="font-semibold text-white">Security & Privacy Assurance Ledger</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <div className="p-4 rounded-lg bg-slate-950/60 border border-slate-800">
             <div className="flex items-center space-x-2 text-cyan-400 mb-2">
               <ShieldCheck className="w-4 h-4" />
-              <h3 className="font-medium text-sm text-white">Android Notification Guard</h3>
+              <h3 className="font-medium text-sm text-white">Zero Raw SMS Retention</h3>
             </div>
             <p className="text-xs text-slate-400">
-              Clean architecture setup with <code className="text-slate-300">:core-domain</code> and <code className="text-slate-300">:app</code> modules. Opt-in NotificationListenerService declared.
+              Message bodies and OTP codes are strictly parsed in memory and never stored in the database, log files, or audit tables.
             </p>
           </div>
 
           <div className="p-4 rounded-lg bg-slate-950/60 border border-slate-800">
             <div className="flex items-center space-x-2 text-cyan-400 mb-2">
               <Clock className="w-4 h-4" />
-              <h3 className="font-medium text-sm text-white">FastAPI Async Core</h3>
+              <h3 className="font-medium text-sm text-white">Dual ML Pipeline</h3>
             </div>
             <p className="text-xs text-slate-400">
-              FastAPI backend running SQLAlchemy 2.0 with live database ping, Alembic migrations, and Pydantic v2 schemas.
+              Real-time SMS NLP classifier combined with URL lexical feature model and multi-feed threat intelligence aggregator.
             </p>
           </div>
 
           <div className="p-4 rounded-lg bg-slate-950/60 border border-slate-800">
             <div className="flex items-center space-x-2 text-cyan-400 mb-2">
               <Globe className="w-4 h-4" />
-              <h3 className="font-medium text-sm text-white">Threat Intelligence</h3>
+              <h3 className="font-medium text-sm text-white">SSRF & Anti-Abuse Isolation</h3>
             </div>
             <p className="text-xs text-slate-400">
-              Provider adapters for Google Safe Browsing, URLhaus, and VirusTotal with circuit breakers and fallback isolation.
+              Zero automated network crawling of suspect targets. Protected against private IP space SSRF and DNS rebinding attacks.
             </p>
           </div>
         </div>

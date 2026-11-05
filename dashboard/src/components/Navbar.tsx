@@ -20,7 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({ backendStatus, onRefresh, isRefr
             <div className="flex items-center space-x-2">
               <span className="font-bold text-lg text-white tracking-tight">SMS SHIELD</span>
               <span className="text-xs uppercase px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800 font-mono">
-                Phase 0
+                v1.0.0
               </span>
             </div>
             <p className="text-xs text-slate-400 hidden sm:block">AI Threat Intelligence & Malicious URL Shield</p>

@@ -22,3 +22,4 @@ interface SmsShieldApi {
     @GET("health")
     suspend fun getHealth(): Map<String, Any>
 }
+

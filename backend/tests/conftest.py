@@ -27,6 +27,16 @@ def setup_test_database():
 
 
 @pytest.fixture
+def db_session():
+    """Yield a database session for testing."""
+    session = SessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
+
+
+@pytest.fixture
 def client():
     """Yield a TestClient for testing FastAPI endpoints."""
     with TestClient(app) as test_client:
