@@ -6,4 +6,9 @@
     <color name="shield_emerald">#10B981</color>
     <color name="shield_amber">#F59E0B</color>
     <color name="shield_rose">#EF4444</color>
+
+    <!-- ZXing Viewfinder Cyber Theme Colors -->
+    <color name="zxing_viewfinder_laser">#00E5FF</color>
+    <color name="zxing_possible_result_points">#00E5FF</color>
+    <color name="zxing_viewfinder_mask">#99030712</color>
 </resources>

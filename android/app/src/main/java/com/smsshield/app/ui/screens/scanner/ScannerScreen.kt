@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
+import com.smsshield.app.ui.scanner.PortraitCaptureActivity
 import com.smsshield.app.ui.theme.*
 import com.smsshield.app.ui.viewmodel.ScanMode
 import com.smsshield.app.ui.viewmodel.ScanUiState
@@ -58,20 +59,25 @@ fun ScannerScreen(
         }
     }
 
+    // Helper to build optimized portrait QR scan options
+    val createScanOptions = {
+        ScanOptions().apply {
+            setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+            setPrompt("")
+            setCameraId(0) // Back camera
+            setBeepEnabled(true)
+            setBarcodeImageEnabled(false)
+            setOrientationLocked(true) // Strictly lock to portrait
+            setCaptureActivity(PortraitCaptureActivity::class.java)
+        }
+    }
+
     // Camera Permission Launcher
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            val scanOptions = ScanOptions().apply {
-                setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-                setPrompt("Align the UPI QR code within the frame to scan")
-                setCameraId(0)
-                setBeepEnabled(true)
-                setBarcodeImageEnabled(false)
-                setOrientationLocked(false)
-            }
-            qrLauncher.launch(scanOptions)
+            qrLauncher.launch(createScanOptions())
         } else {
             Toast.makeText(context, "Camera permission is required to scan QR codes", Toast.LENGTH_LONG).show()
         }
@@ -79,15 +85,7 @@ fun ScannerScreen(
 
     val startCameraScanner = {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            val scanOptions = ScanOptions().apply {
-                setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-                setPrompt("Align the UPI QR code within the frame to scan")
-                setCameraId(0)
-                setBeepEnabled(true)
-                setBarcodeImageEnabled(false)
-                setOrientationLocked(false)
-            }
-            qrLauncher.launch(scanOptions)
+            qrLauncher.launch(createScanOptions())
         } else {
             permissionLauncher.launch(Manifest.permission.CAMERA)
         }

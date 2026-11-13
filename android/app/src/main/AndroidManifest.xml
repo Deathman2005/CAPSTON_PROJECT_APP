@@ -45,6 +45,15 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
+
+        <!-- Portrait-Locked Camera QR Scanner Activity (Compact 2x2 cm to standard square box) -->
+        <activity
+            android:name=".ui.scanner.PortraitCaptureActivity"
+            android:screenOrientation="portrait"
+            android:stateNotNeeded="true"
+            android:theme="@style/zxing_CaptureTheme"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
         <!-- Opt-in SMS Notification Monitoring Service -->
         <service
             android:name=".service.SMSNotificationListener"
