@@ -1,8 +1,12 @@
 """Application configuration using Pydantic Settings."""
 
+from pathlib import Path
 from typing import List, Union
 from pydantic import AnyHttpUrl, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
+_ENV_FILE = _BACKEND_DIR / ".env"
 
 
 class Settings(BaseSettings):
@@ -42,7 +46,7 @@ class Settings(BaseSettings):
     GROQ_TIMEOUT_SECONDS: float = 6.0
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(_ENV_FILE, ".env"),
         env_file_encoding="utf-8",
         case_sensitive=True,
         extra="ignore",
