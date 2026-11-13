@@ -17,7 +17,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.smsshield.app.service.SMSNotificationListener
+import com.smsshield.app.util.PermissionUtils
 import com.smsshield.app.ui.theme.*
 import com.smsshield.app.ui.viewmodel.SettingsViewModel
 
@@ -108,6 +110,129 @@ fun SettingsScreen(
                         )
                     )
                 }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = ShieldBorder)
+
+                var isSystemAccessGranted by remember { mutableStateOf(PermissionUtils.isNotificationListenerEnabled(context)) }
+                LifecycleResumeEffect(Unit) {
+                    isSystemAccessGranted = PermissionUtils.isNotificationListenerEnabled(context)
+                    onPauseOrDispose { }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Android System Access",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White
+                        )
+                        Text(
+                            text = if (isSystemAccessGranted) "Granted & Active" else "Not granted in Android Settings",
+                            fontSize = 11.sp,
+                            color = if (isSystemAccessGranted) ShieldSafe else ShieldWarning
+                        )
+                    }
+
+                    if (!isSystemAccessGranted) {
+                        TextButton(
+                            onClick = {
+                                try {
+                                    context.startActivity(PermissionUtils.createNotificationListenerSettingsIntent())
+                                } catch (_: Exception) {
+                                    Toast.makeText(context, "Could not open Settings", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        ) {
+                            Text("Grant Access", color = ShieldCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+                    } else {
+                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = ShieldSafe, modifier = Modifier.size(20.dp))
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Device Optimization & Background Reliability (Crucial for Xiaomi / HyperOS / MIUI)
+        Text("DEVICE RELIABILITY & AUTO-TRIGGER", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = ShieldCyan)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = ShieldCardBg),
+            shape = RoundedCornerShape(12.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, ShieldBorder)
+        ) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.BatteryChargingFull,
+                        contentDescription = null,
+                        tint = ShieldCyan,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = if (PermissionUtils.isXiaomiDevice()) "Xiaomi / HyperOS / MIUI Guard" else "Background Protection Guard",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                }
+
+                Text(
+                    text = "Aggressive OEM battery managers frequently terminate background notification listeners. To ensure 24/7 real-time fraud detection, verify these two settings:",
+                    fontSize = 11.sp,
+                    color = Color.LightGray,
+                    lineHeight = 16.sp
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("1. Autostart Permission", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.White)
+                        Text("Allows SMS Shield to restart after reboot", fontSize = 10.sp, color = Color.Gray)
+                    }
+                    TextButton(
+                        onClick = {
+                            val opened = PermissionUtils.openXiaomiAutostart(context)
+                            if (!opened) {
+                                PermissionUtils.requestIgnoreBatteryOptimizations(context)
+                            }
+                        }
+                    ) {
+                        Text("Configure", color = ShieldCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                HorizontalDivider(color = ShieldBorder)
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("2. Battery Saver: No Restrictions", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.White)
+                        Text("Prevents OS from killing the real-time guard", fontSize = 10.sp, color = Color.Gray)
+                    }
+                    TextButton(
+                        onClick = {
+                            PermissionUtils.requestIgnoreBatteryOptimizations(context)
+                        }
+                    ) {
+                        Text("Exempt", color = ShieldCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
             }
         }
 
@@ -135,7 +260,11 @@ fun SettingsScreen(
                         Icon(Icons.Default.CheckCircle, contentDescription = null, tint = ShieldSafe, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
-                            val name = if (pkg.contains("google")) "Google Messages" else "Samsung Messages"
+                            val name = when {
+                                pkg.contains("google") -> "Google Messages"
+                                pkg.contains("samsung") -> "Samsung Messages"
+                                else -> "Xiaomi / System Messages"
+                            }
                             Text(name, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color.White)
                             Text(pkg, fontSize = 10.sp, color = Color.Gray)
                         }

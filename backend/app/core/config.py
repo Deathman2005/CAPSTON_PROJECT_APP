@@ -35,6 +35,12 @@ class Settings(BaseSettings):
     GOOGLE_SAFE_BROWSING_API_KEY: str = ""
     VIRUSTOTAL_API_KEY: str = ""
 
+    # Groq AI Explanation Configuration
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
+    GROQ_FALLBACK_MODEL: str = "llama-3.1-8b-instant"
+    GROQ_TIMEOUT_SECONDS: float = 6.0
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

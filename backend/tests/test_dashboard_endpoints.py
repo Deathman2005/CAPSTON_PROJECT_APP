@@ -113,3 +113,4 @@ def test_get_threat_distribution(db_session):
     assert "MALICIOUS" in names
     assert "SUSPICIOUS" in names
     assert "UNKNOWN" in names
+

@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import List, Dict, Optional, Any
 from pydantic import BaseModel, Field
+from app.services.explanation.schemas import ExplanationResult
 
 
 class UrlScanRequest(BaseModel):
@@ -85,5 +86,9 @@ class MessageScanResponse(BaseModel):
     extracted_urls: List[str] = Field(default_factory=list)
     recommendation: str
     model_version: str
+    explanation: Optional[ExplanationResult] = Field(
+        None,
+        description="Structured Explainable AI (XAI) breakdown with plain-English reasons, actionable safety guidance, and Hindi translation.",
+    )
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 

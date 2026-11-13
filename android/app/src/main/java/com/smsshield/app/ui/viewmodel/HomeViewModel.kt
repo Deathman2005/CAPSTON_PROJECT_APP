@@ -24,22 +24,28 @@ class HomeViewModel(
 
     private val _isPermissionGranted = MutableStateFlow(false)
 
-    val uiState: StateFlow<HomeUiState> = combine(
-        preferencesRepository.userPreferencesFlow,
-        _isPermissionGranted,
+    private val _countsFlow = combine(
         scanRecordDao.getTotalScanCount().catch { emit(0) },
         scanRecordDao.getScanCountByClassification("SAFE").catch { emit(0) },
         scanRecordDao.getScanCountByClassification("SUSPICIOUS").catch { emit(0) },
-        scanRecordDao.getScanCountByClassification("MALICIOUS").catch { emit(0) },
+        scanRecordDao.getScanCountByClassification("MALICIOUS").catch { emit(0) }
+    ) { total, safe, suspicious, malicious ->
+        listOf(total, safe, suspicious, malicious)
+    }
+
+    val uiState: StateFlow<HomeUiState> = combine(
+        preferencesRepository.userPreferencesFlow,
+        _isPermissionGranted,
+        _countsFlow,
         scanRecordDao.getRecentScans(10).catch { emit(emptyList()) }
-    ) { prefs, permGranted, total, safe, suspicious, malicious, recent ->
+    ) { prefs, permGranted, counts, recent ->
         HomeUiState(
             isMonitoringEnabled = prefs.isMonitoringEnabled,
             isListenerPermissionGranted = permGranted,
-            totalScans = total,
-            safeCount = safe,
-            suspiciousCount = suspicious,
-            maliciousCount = malicious,
+            totalScans = counts[0],
+            safeCount = counts[1],
+            suspiciousCount = counts[2],
+            maliciousCount = counts[3],
             recentScans = recent.map { it.toDomain() }
         )
     }.stateIn(

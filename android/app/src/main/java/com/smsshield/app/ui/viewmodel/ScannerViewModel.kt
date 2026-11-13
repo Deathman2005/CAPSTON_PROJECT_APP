@@ -1,8 +1,10 @@
 package com.smsshield.app.ui.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smsshield.app.data.repository.ScanRepository
+import com.smsshield.app.service.AlertNotificationManager
 import com.smsshield.domain.model.ScanItem
 import com.smsshield.domain.model.SecurityClassification
 import com.smsshield.domain.parser.UrlExtractor
@@ -18,12 +20,24 @@ sealed class ScanUiState {
     data class Error(val message: String) : ScanUiState()
 }
 
+enum class ScanMode {
+    SMS,
+    QR
+}
+
 class ScannerViewModel(
-    private val scanRepository: ScanRepository
+    private val scanRepository: ScanRepository,
+    private val context: Context? = null
 ) : ViewModel() {
+
+    private val _scanMode = MutableStateFlow(ScanMode.SMS)
+    val scanMode: StateFlow<ScanMode> = _scanMode.asStateFlow()
 
     private val _messageText = MutableStateFlow("")
     val messageText: StateFlow<String> = _messageText.asStateFlow()
+
+    private val _qrText = MutableStateFlow("")
+    val qrText: StateFlow<String> = _qrText.asStateFlow()
 
     private val _extractedUrls = MutableStateFlow<List<String>>(emptyList())
     val extractedUrls: StateFlow<List<String>> = _extractedUrls.asStateFlow()
@@ -31,10 +45,23 @@ class ScannerViewModel(
     private val _scanState = MutableStateFlow<ScanUiState>(ScanUiState.Idle)
     val scanState: StateFlow<ScanUiState> = _scanState.asStateFlow()
 
+    fun setScanMode(mode: ScanMode) {
+        _scanMode.value = mode
+        if (_scanState.value is ScanUiState.Error) {
+            _scanState.value = ScanUiState.Idle
+        }
+    }
+
     fun updateMessageText(text: String) {
         _messageText.value = text
-        val extracted = UrlExtractor.extractUrls(text)
-        _extractedUrls.value = extracted.map { it.normalized }
+        _extractedUrls.value = UrlExtractor.extractUrls(text)
+        if (_scanState.value is ScanUiState.Error) {
+            _scanState.value = ScanUiState.Idle
+        }
+    }
+
+    fun updateQrText(text: String) {
+        _qrText.value = text
         if (_scanState.value is ScanUiState.Error) {
             _scanState.value = ScanUiState.Idle
         }
@@ -57,6 +84,9 @@ class ScannerViewModel(
 
             result.onSuccess { item ->
                 _scanState.value = ScanUiState.Success(item)
+                context?.let { ctx ->
+                    AlertNotificationManager.showSecurityAlert(ctx, item, notifyIfSafe = true)
+                }
             }.onFailure { err ->
                 _scanState.value = ScanUiState.Error(err.message ?: "Failed to analyze message.")
             }
@@ -91,17 +121,45 @@ class ScannerViewModel(
                     extractedUrls = listOf(urlResponse.normalized_url),
                     detectionReasons = urlResponse.evidence,
                     recommendation = urlResponse.recommendation,
-                    sourceCategory = "manual_url"
+                    sourceCategory = "manual_url",
+                    scannedText = trimmed,
+                    payloadType = "url"
                 )
                 _scanState.value = ScanUiState.Success(item)
+                context?.let { ctx ->
+                    AlertNotificationManager.showSecurityAlert(ctx, item, notifyIfSafe = true)
+                }
             }.onFailure { err ->
                 _scanState.value = ScanUiState.Error(err.message ?: "Failed to analyze URL.")
             }
         }
     }
 
+    fun scanQr(qrContent: String) {
+        val trimmed = qrContent.trim()
+        if (trimmed.isBlank()) {
+            _scanState.value = ScanUiState.Error("Please enter or paste QR code content (e.g. upi://pay?...).")
+            return
+        }
+
+        viewModelScope.launch {
+            _scanState.value = ScanUiState.Loading
+
+            val result = scanRepository.scanQr(trimmed)
+            result.onSuccess { item ->
+                _scanState.value = ScanUiState.Success(item)
+                context?.let { ctx ->
+                    AlertNotificationManager.showSecurityAlert(ctx, item, notifyIfSafe = true)
+                }
+            }.onFailure { err ->
+                _scanState.value = ScanUiState.Error(err.message ?: "Failed to analyze QR code.")
+            }
+        }
+    }
+
     fun clear() {
         _messageText.value = ""
+        _qrText.value = ""
         _extractedUrls.value = emptyList()
         _scanState.value = ScanUiState.Idle
     }

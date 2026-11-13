@@ -4,6 +4,8 @@ import com.smsshield.domain.model.MessageScanApiRequest
 import com.smsshield.domain.model.MessageScanApiResponse
 import com.smsshield.domain.model.UrlScanApiRequest
 import com.smsshield.domain.model.UrlScanApiResponse
+import com.smsshield.domain.model.QrScanApiRequest
+import com.smsshield.domain.model.QrScanApiResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -18,6 +20,9 @@ interface SmsShieldApi {
 
     @POST("api/v1/scan/url")
     suspend fun scanUrl(@Body request: UrlScanApiRequest): UrlScanApiResponse
+
+    @POST("api/v1/scan/qr")
+    suspend fun scanQr(@Body request: QrScanApiRequest): QrScanApiResponse
 
     @GET("health")
     suspend fun getHealth(): Map<String, Any>

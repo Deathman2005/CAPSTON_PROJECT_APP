@@ -141,3 +141,4 @@ export const RecentScansTable: React.FC<RecentScansTableProps> = ({ scans }) => 
     </div>
   );
 };
+

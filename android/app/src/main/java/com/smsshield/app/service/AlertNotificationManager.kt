@@ -42,10 +42,27 @@ object AlertNotificationManager {
         }
     }
 
-    fun showSecurityAlert(context: Context, scan: ScanItem) {
+    fun showSecurityAlert(context: Context, scan: ScanItem, notifyIfSafe: Boolean = false) {
         createNotificationChannel(context)
         val payload = AlertDecisionEngine.evaluate(scan)
-        if (!payload.shouldAlert) {
+
+        val title: String
+        val body: String
+        val priority: Int
+
+        if (payload.shouldAlert) {
+            title = payload.title
+            body = payload.body
+            priority = when (payload.priority) {
+                AlertPriority.HIGH -> NotificationCompat.PRIORITY_HIGH
+                AlertPriority.DEFAULT -> NotificationCompat.PRIORITY_DEFAULT
+                AlertPriority.NONE -> NotificationCompat.PRIORITY_LOW
+            }
+        } else if (notifyIfSafe) {
+            title = "✅ SMS Shield: Message Safe"
+            body = "No scam patterns or malicious URLs detected."
+            priority = NotificationCompat.PRIORITY_DEFAULT
+        } else {
             return
         }
 
@@ -63,18 +80,12 @@ object AlertNotificationManager {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val notificationPriority = when (payload.priority) {
-            AlertPriority.HIGH -> NotificationCompat.PRIORITY_HIGH
-            AlertPriority.DEFAULT -> NotificationCompat.PRIORITY_DEFAULT
-            AlertPriority.NONE -> NotificationCompat.PRIORITY_LOW
-        }
-
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
-            .setContentTitle(payload.title)
-            .setContentText(payload.body)
-            .setStyle(NotificationCompat.BigTextStyle().bigText("${payload.body}\n\nAction: ${payload.recommendation}"))
-            .setPriority(notificationPriority)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText("$body\n\nAction: ${scan.recommendation}"))
+            .setPriority(priority)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
@@ -82,7 +93,7 @@ object AlertNotificationManager {
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
         try {
             manager?.notify(scan.id.hashCode(), builder.build())
-            Log.i(TAG, "Dispatched security warning notification for scanId: ${scan.id}")
+            Log.i(TAG, "Dispatched notification for scanId: ${scan.id}")
         } catch (e: SecurityException) {
             Log.w(TAG, "Unable to post notification: permission not granted ($e)")
         }

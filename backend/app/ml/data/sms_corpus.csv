@@ -1,49 +1,79 @@
 text,label,category,source_id
-"Dear SBI User, your Netbanking account will be blocked today due to pending KYC. Click here to update: https://sbi-kyc-verify.net",1,bank_impersonation,DS-01
-HDFC Bank Alert: Your debit card ending in 4021 has been suspended due to suspicious activity. Reactivate now at https://hdfc-reactivate.xyz,1,bank_impersonation,DS-01
-ICICI Alert: Your account is on hold. Submit your PAN card immediately to avoid account termination: http://icici-pan-verify.com,1,bank_impersonation,DS-01
-"PNB Customer, your bank account access will be terminated within 24 hours. Verify your account at https://pnb-verify.in/auth",1,bank_impersonation,DS-01
-Axis Bank: Your account KYC has expired. Please upload identity documents at https://axis-online-kyc.com/portal,1,bank_impersonation,DS-01
-"Dear customer, your Bank of Baroda account has been temporarily disabled. Visit http://bob-helpdesk.online to unblock.",1,bank_impersonation,DS-01
-Canara Bank Notice: Unauthorized login detected on your mobile banking. Secure your account immediately: https://canara-secure.com,1,bank_impersonation,DS-01
-"You have received a payment request of Rs. 4,999 on PhonePe for your OLX sale. Enter your UPI PIN to accept payment.",1,upi_scam,DS-01
-"GooglePay: Cash refund of INR 2,450 is approved. Click to claim directly to your bank account: https://gpay-rewards-claim.com",1,upi_scam,DS-01
-"Paytm Alert: Your cashback reward of Rs. 1,890 has arrived! Claim immediately within 24 hrs: http://paytm-cashback-gift.top",1,upi_scam,DS-01
-UPI Transfer failed. Amount Rs 15000 debited from sender but pending credit to you. Verify VPA: http://upi-resolution-desk.biz,1,upi_scam,DS-01
-"BHIM UPI: You received Rs 3,500 bonus cashback. Authorize by clicking http://bhim-upi-reward.xyz and entering PIN.",1,upi_scam,DS-01
-URGENT: Your SBI YONO account will be deactivated today because PAN card is not linked. Update immediately: https://sbi-pan-link.com,1,kyc_scam,DS-01
-"Dear user, your SIM card and banking services will be stopped at 9:30 PM due to unverified Aadhaar. Contact 9876543210 or visit http://e-kyc-telecom.com",1,kyc_scam,DS-01
-"Income Tax Notice: Urgent action required. Verify your PAN card details to receive income tax refund of Rs 18,750: https://it-refund-claim.org",1,kyc_scam,DS-01
-Attention: Your Aadhaar verification is incomplete. All banking services will be suspended. Update KYC now at https://uidai-kyc-portal.club,1,kyc_scam,DS-01
-"Bank Verification Officer: We detected unauthorized transaction of Rs 45,000. Send us the 6-digit OTP you just received to cancel it immediately.",1,otp_theft,DS-01
-HDFC Security: Do not share OTP with anyone. Our support representative is calling you to verify OTP for reversing fraudulent charge.,1,otp_theft,DS-01
-Enter your netbanking password and OTP on our security portal http://bank-safe-verify.info to stop card compromise.,1,otp_theft,DS-01
-Your ATM PIN needs mandatory update due to RBI safety norms. Update PIN here: https://rbi-atm-pin-safety.net,1,otp_theft,DS-01
-Claim your complimentary Rs 500 mobile recharge bonus today! Click here before it expires: https://bit.ly/3xRechargeBonus,1,phishing_link,DS-01
-Important notice regarding your savings account: Please review new security advisory at https://tinyurl.com/bank-security-notice,1,phishing_link,DS-01
-"Exclusive reward points worth Rs 4,200 expiring tonight. Convert points to cash at https://t.co/pointsRedeemCash",1,phishing_link,DS-01
-Your credit score improved! Check pre-approved loan of 10 Lakhs with zero interest: https://cutt.ly/preapproved-loan-offer,1,phishing_link,DS-01
-India Post: Your package could not be delivered due to incomplete delivery address. Update details within 12 hours: http://indiapost-redelivery.org,1,delivery_scam,DS-01
-BlueDart Notice: Shipment #BD849204 has pending customs customs duty of Rs 25. Pay online to release delivery: https://bluedart-customs-pay.com,1,delivery_scam,DS-01
-Amazon Courier: Delivery boy tried to reach you for parcel #4082. Please confirm your delivery address here: http://amazon-courier-update.top,1,delivery_scam,DS-01
-Delhivery: Your package is returned to warehouse. Reschedule delivery date immediately at https://delhivery-package-track.info,1,delivery_scam,DS-01
-"Amazon Hiring: Part-time work from home opportunity! Earn Rs 2,500 to 5,000 daily by rating products. Contact manager on WhatsApp: https://wa.me/919876543210",1,job_scam,DS-01
-"YouTube Video Reviewer Job: Earn Rs 3,000 per day by simply liking videos! Zero investment. Join official Telegram group: https://t.me/daily_task_earning",1,job_scam,DS-01
-"Congratulations! Your resume was shortlisted for Data Entry position at MNC. Daily payout Rs 2,000. WhatsApp HR at 9811223344.",1,job_scam,DS-01
-"Dear Winner, you have won Rs 25,00,000 in KBC Jio Lucky Draw 2026! Contact Rana Pratap Singh on WhatsApp 9822334455 to claim your prize cheque.",1,lottery_scam,DS-01
-Congratulations! Your mobile number won 1st prize of brand new Tata Nexon SUV in Diwali mega draw. Claim at http://tata-mega-winner.com,1,lottery_scam,DS-01
-"International Lottery Council: Your email won 500,000 GBP. Send your banking details and passport copy to lottery@claims-dept.com to process.",1,lottery_scam,DS-01
-"PM Kisan Yojana: 17th installment of Rs 2,000 has been transferred. Check beneficiary status and verify biometric: https://pmkisan-gov-verify.com",1,gov_benefit_scam,DS-01
-"Ministry of Finance: Government has approved unemployment relief grant of Rs 5,000 to your bank account. Apply here: https://gov-relief-subsidy.in",1,gov_benefit_scam,DS-01
-LPG Subsidy Department: Your cylinder subsidy of Rs 450 is on hold. Update bank details at http://lpg-subsidy-portal.xyz,1,gov_benefit_scam,DS-01
-"Dear Consumer, your electricity power will be disconnected tonight at 9:30 PM from electricity office because previous month bill was not updated. Call electricity officer immediately: 9876501234.",1,utility_scam,DS-01
-URGENT ELECTRICITY NOTICE: Power disconnection order issued for your meter. Pay bill immediately or contact chief engineer at 9123456789.,1,utility_scam,DS-01
-Gas pipeline supply disconnection notice: Your piped gas connection will be disconnected within 2 hours. Pay bill via http://citygas-billpay.biz,1,utility_scam,DS-01
-"Instant Personal Loan approved of Rs 5,00,000 with 0% interest and no CIBIL check! Disbursed in 5 minutes: https://instant-cash-loan-app.club",1,loan_scam,DS-01
-"Crypto Wealth Club: Invest Rs 10,000 today and receive Rs 35,000 guaranteed daily profit. Join our VIP channel: http://crypto-profit-daily.xyz",1,loan_scam,DS-01
-Stock market insider tips: 100% guaranteed jackpot calls with 500% returns in 3 days. Join SEBI registered advisory on Telegram https://t.me/jackpot_stocks,1,loan_scam,DS-01
-"Google Pay support: For any refund issues or transaction failure, call our 24x7 customer support toll free executive at 9870001122.",1,fake_support,DS-01
-Download the new upgraded SBI Mobile Banking APK for seamless transactions: http://sbi-security-apk.download/sbi_v4.apk,1,malware_url,DS-01
+"Rs 45,000.00 credited to your account from Amit Kumar via IMPS. Click http://bank-credit-confirm.xyz to release funds.",1,fake_payment_confirmation,DS-01
+"Payment Successful: You received Rs 12,500 on PhonePe from buyer. Confirm transaction receipt at http://phonepe-receive-ack.cc",1,fake_payment_confirmation,DS-01
+"A/C credited with Rs 28,000 transferred by Ramesh. Verify your identity at http://pay-confirmation-gateway.top to claim money.",1,fake_payment_confirmation,DS-01
+"SBI Alert: Amount of Rs 85,000 sent to your a/c. Complete authorization at http://sbi-imps-receiver.info to credit to balance.",1,fake_payment_confirmation,DS-01
+"GooglePay: You received Rs 15,000 from Rohit Sharma for laptop purchase. Click to accept payment http://gpay-settle-claim.online",1,fake_payment_confirmation,DS-01
+"Money transferred! Rs 9,400 credited to your UPI ID. Settle payment immediately at http://upi-merchant-credit.top",1,fake_payment_confirmation,DS-01
+"You have received a payment request of Rs. 4,999 on PhonePe for your OLX sale. Enter your UPI PIN to accept payment.",1,fake_upi_collect_request,DS-01
+"Merchant collect request of Rs 7,500 received. Click approve in GPay and enter UPI PIN to receive money in your bank.",1,fake_upi_collect_request,DS-01
+"Payment collect request of Rs 2,000 pending. Approve request to credit amount to your Paytm wallet instantly.",1,fake_upi_collect_request,DS-01
+"BHIM UPI: Collect request received for Rs 14,000. Enter secret UPI PIN to receive money from client.",1,fake_upi_collect_request,DS-01
+"Incoming funds pending: Approve collect request from Sharma Traders to deposit Rs 6,800 to account.",1,fake_upi_collect_request,DS-01
+"Click approve on the UPI request to accept Rs 3,200 refund. Enter PIN to confirm receipt.",1,fake_upi_collect_request,DS-01
+"Scan this QR code using PhonePe or GPay to claim your cashback refund of Rs 1,500 immediately.",1,qr_code_scam,DS-01
+"Dear customer, scan the attached QR code to receive your advance token money of Rs 5,000 for sofa.",1,qr_code_scam,DS-01
+"Refund approved: Open Google Pay, scan QR code and enter UPI PIN to receive Rs 2,400 refund.",1,qr_code_scam,DS-01
+"Paytm Prize: Scan this dynamic QR code to deposit Rs 10,000 festive gift into your account.",1,qr_code_scam,DS-01
+"OLX buyer sent you a payment QR code. Scan QR code in your UPI app to receive Rs 8,500.",1,qr_code_scam,DS-01
+"Scan QR to claim reimbursement of Rs 3,900 from airline ticketing department.",1,qr_code_scam,DS-01
+"Your previous transaction failed. Claim refund of Rs 1,499 now by approving the reversal request: http://paytm-refund-desk.cc",1,fake_refund_scam,DS-01
+"IRCTC Ticket Cancellation Refund of Rs 3,850 is ready. Click link to deposit into bank: http://irctc-refund-portal.net",1,fake_refund_scam,DS-01
+Swiggy order cancellation refund pending. Submit VPA to process instant refund: http://swiggy-refund-help.xyz,1,fake_refund_scam,DS-01
+"Amazon Pay: Your double debit refund of Rs 5,200 is approved. Click to authorize credit: http://amazon-refund-settlement.biz",1,fake_refund_scam,DS-01
+"Flipkart Refund Notice: Tap http://flipkart-money-reversal.top and enter OTP to complete Rs 7,999 refund.",1,fake_refund_scam,DS-01
+"Electricity extra charge refund of Rs 1,200 available. Click here to claim refund: http://discom-refund-online.org",1,fake_refund_scam,DS-01
+"Earlier payment of Rs 1,200 failed due to network timeout. Please pay again immediately to complete order: http://merchant-retry-pay.cc",1,duplicate_payment_scam,DS-01
+Your flight booking transaction timed out. Pay again within 15 minutes to avoid seat cancellation: http://travel-retry-pay.xyz,1,duplicate_payment_scam,DS-01
+"First payment of Rs 4,500 was rejected by server. Retry payment immediately through this link: http://bill-pay-gateway.top",1,duplicate_payment_scam,DS-01
+"Payment incomplete: Transaction #9482 did not clear. Re-submit payment of Rs 2,800 to prevent order cancellation.",1,duplicate_payment_scam,DS-01
+"UPI payment timed out at merchant. Click here to repay Rs 1,950: http://fast-upi-retry.biz",1,duplicate_payment_scam,DS-01
+"Dear SBI User, your Netbanking account will be blocked today due to pending KYC. Click here to update: https://sbi-kyc-verify.net",1,fake_kyc_update,DS-01
+URGENT: Your SBI YONO account will be deactivated today because PAN card is not linked. Update immediately: https://sbi-pan-link.com,1,fake_kyc_update,DS-01
+Axis Bank: Your account KYC has expired. Please upload identity documents at https://axis-online-kyc.com/portal,1,fake_kyc_update,DS-01
+HDFC Alert: Your NetBanking KYC verification is pending. Submit Aadhaar and PAN at http://hdfc-kyc-portal.xyz,1,fake_kyc_update,DS-01
+"Dear customer, your Bank of Baroda KYC is incomplete. Visit http://bob-helpdesk.online to submit documents immediately.",1,fake_kyc_update,DS-01
+PNB Notice: Mandatory KYC update required by RBI guidelines. Click to update PAN: http://pnb-online-kyc.top,1,fake_kyc_update,DS-01
+Attention: Your Aadhaar verification is incomplete. All banking services will be suspended. Update KYC now at https://uidai-kyc-portal.club,1,fake_kyc_update,DS-01
+HDFC Bank Alert: Your debit card ending in 4021 has been suspended due to suspicious activity. Reactivate now at https://hdfc-reactivate.xyz,1,bank_suspension_scam,DS-01
+ICICI Alert: Your account is on hold. Submit your PAN card immediately to avoid account termination: http://icici-pan-verify.com,1,bank_suspension_scam,DS-01
+"PNB Customer, your bank account access will be terminated within 24 hours. Verify your account at https://pnb-verify.in/auth",1,bank_suspension_scam,DS-01
+Canara Bank Notice: Unauthorized login detected on your mobile banking. Secure your account immediately: https://canara-secure.com,1,bank_suspension_scam,DS-01
+Kotak Alert: Account 9482 will be deactivated within 12 hours due to irregular activities. Login to restore: http://kotak-restore-login.net,1,bank_suspension_scam,DS-01
+Your debit card has been permanently blocked. Contact helpline immediately or unlock online: http://bank-card-unlock.info,1,bank_suspension_scam,DS-01
+Paytm customer care helpline: 9876543210. Download AnyDesk to resolve pending refund immediately.,1,fake_customer_care,DS-01
+"Google Pay support: For failed transactions, call our 24x7 customer support executive on 9870001122 and install QuickSupport.",1,fake_customer_care,DS-01
+PhonePe Helpdesk: Call 9123456789. Install TeamViewer app to get your money back in 5 minutes.,1,fake_customer_care,DS-01
+Bank Verification Officer: We detected unauthorized charge. Send us the 6-digit OTP you just received to reverse it.,1,fake_customer_care,DS-01
+SBI Customer Care Officer calling to cancel insurance deduction. Download RustDesk to verify phone.,1,fake_customer_care,DS-01
+Toll free support executive: 8899001122. Share screen via AnyDesk to verify payment reversal.,1,fake_customer_care,DS-01
+"Congratulations! You won Rs 10,000 cashback reward from Google Pay. Claim prize here: http://gpay-rewards-claim.com",1,cashback_reward_scam,DS-01
+"Paytm Alert: Your cashback reward of Rs. 1,890 has arrived! Claim immediately within 24 hrs: http://paytm-cashback-gift.top",1,cashback_reward_scam,DS-01
+"BHIM UPI: You received Rs 3,500 bonus cashback. Authorize by clicking http://bhim-upi-reward.xyz and entering PIN.",1,cashback_reward_scam,DS-01
+"Dear Winner, you have won Rs 25,00,000 in KBC Jio Lucky Draw 2026! Contact Rana Pratap Singh on WhatsApp 9822334455.",1,cashback_reward_scam,DS-01
+Diwali Mega Lucky Draw: Your mobile number won 1st prize Tata Nexon SUV. Click to claim: http://tata-mega-winner.com,1,cashback_reward_scam,DS-01
+Spin and win reward! You won Samsung Galaxy S25 Ultra. Pay processing fee of Rs 499 at http://prize-claim-now.xyz,1,cashback_reward_scam,DS-01
+"Dear customer, your SIM card will be deactivated tonight due to missing e-KYC documents. Call executive 9876543210.",1,sim_blocking_scam,DS-01
+Airtel Notice: Your SIM card services will be stopped at 9:30 PM due to unverified Aadhaar. Contact 9123456780 immediately.,1,sim_blocking_scam,DS-01
+Jio e-KYC pending: Your outgoing and incoming calls will be blocked in 2 hours. Update docs at http://jio-ekyc-verification.com,1,sim_blocking_scam,DS-01
+Vodafone Idea Alert: Upload your identity card to prevent permanent SIM disconnection: http://vi-sim-kyc.top,1,sim_blocking_scam,DS-01
+Telecom Regulatory Authority notice: Your mobile number is flagged for immediate deactivation. Call officer now.,1,sim_blocking_scam,DS-01
+"Dear Consumer, your electricity power will be disconnected tonight at 9:30 PM from electricity office because previous month bill was not updated. Call electricity officer immediately: 9876501234.",1,electricity_disconnection_scam,DS-01
+URGENT ELECTRICITY NOTICE: Power disconnection order issued for your meter. Pay bill immediately or contact chief engineer at 9123456789.,1,electricity_disconnection_scam,DS-01
+Electric supply will be disconnected at 8:30 PM tonight due to unpaid bill. Pay via link http://bijli-bill-payment.net or call SDPO.,1,electricity_disconnection_scam,DS-01
+"Notice from state electricity board: Power cut tonight due to pending arrears of Rs 3,450. Contact officer 9811223344.",1,electricity_disconnection_scam,DS-01
+Gas pipeline supply disconnection notice: Your piped gas connection will be disconnected within 2 hours. Pay bill via http://citygas-billpay.biz,1,electricity_disconnection_scam,DS-01
+India Post: Your package could not be delivered due to incomplete delivery address. Update details within 12 hours: http://indiapost-redelivery.org,1,fake_delivery_fee,DS-01
+BlueDart Notice: Shipment #BD849204 has pending customs customs duty of Rs 25. Pay online to release delivery: https://bluedart-customs-pay.com,1,fake_delivery_fee,DS-01
+Amazon Courier: Delivery boy tried to reach you for parcel #4082. Please confirm your delivery address here: http://amazon-courier-update.top,1,fake_delivery_fee,DS-01
+Delhivery: Your package is returned to warehouse. Pay Rs 48 redelivery fee immediately at https://delhivery-package-track.info,1,fake_delivery_fee,DS-01
+SpeedPost parcel is on hold at sorting facility. Update street address and postal fee: http://speedpost-tracking-india.com,1,fake_delivery_fee,DS-01
+DTDC Courier: Undelivered parcel pending. Pay nominal fee of Rs 30 to reschedule delivery today: http://dtdc-redelivery.net,1,fake_delivery_fee,DS-01
+"Instant Personal Loan approved of Rs 5,00,000 with 0% interest and no CIBIL check! Disbursed in 5 minutes: https://instant-cash-loan-app.club",1,loan_phishing_scam,DS-01
+"Amazon Hiring: Part-time work from home opportunity! Earn Rs 2,500 to 5,000 daily by rating products. Contact manager on WhatsApp: https://wa.me/919876543210",1,job_lottery_scam,DS-01
+"PM Kisan Yojana: 17th installment of Rs 2,000 has been transferred. Check beneficiary status and verify biometric: https://pmkisan-gov-verify.com",1,loan_phishing_scam,DS-01
+Download the new upgraded SBI Mobile Banking APK for seamless transactions: http://sbi-security-apk.download/sbi_v4.apk,1,loan_phishing_scam,DS-01
+Enter your netbanking password and OTP on our security portal http://bank-safe-verify.info to stop card compromise.,1,loan_phishing_scam,DS-01
 "Rs. 1,450.00 debited from A/C XX4921 on 04-Nov-26 at SWIGGY BANGALORE. Avl Bal: Rs. 48,210.50. Call 1800112211 if not done by you - SBI.",0,transactional_clean,DS-01
 "Your A/C 9081 is credited with INR 75,000.00 on 31-Oct-26 by NEFT-SALARY OCTOBER. Clear balance: INR 1,12,450.00 - HDFC Bank.",0,transactional_clean,DS-01
 "Dear Customer, INR 450.00 spent on your ICICI Bank Credit Card XX2041 at SHELL PETROL on 03-Nov-26. Available limit: INR 1,45,000.00.",0,transactional_clean,DS-01
@@ -54,12 +84,22 @@ Bill for your Airtel Broadband 08041234567 is Rs 943.00. Due date is 15-Nov-26. 
 "Mutual fund SIP of Rs 5,000.00 in Parag Parikh Flexi Cap Fund successfully processed on 02-Nov-26. Nav: 82.41.",0,transactional_clean,DS-01
 IndiGo booking confirmed! PNR: 6E-9021. Flight 6E-241 from DEL to BLR on 10-Nov-26 departing 14:15. Web check-in opens 48 hours prior.,0,transactional_clean,DS-01
 Your Uber ride of Rs 340.00 is complete. Thank you for riding with Uber. View ride receipt in your app.,0,transactional_clean,DS-01
+Rs 250.00 paid to Mother Dairy via PhonePe from Kotak Mahindra Bank A/C XX1928 on 08-Nov-26. UTR 948201948201.,0,transactional_clean,DS-01
+"Dear customer, your recurring deposit installment of Rs 2,000 has been debited from account 4091 on 05-Nov-26 - Canara Bank.",0,transactional_clean,DS-01
+"Your credit card bill of Rs 14,290.00 for card ending 9012 is generated. Due date 20-Nov-26. Min due Rs 750.00 - HDFC Bank.",0,transactional_clean,DS-01
+"Dear SBI customer, your home loan EMI of Rs 32,450 for loan account 9019 has been credited for November 2026.",0,transactional_clean,DS-01
+"ATM Cash Withdrawal of Rs 5,000.00 made from A/C XX3910 at HDFC ATM MG ROAD on 06-Nov-26. Bal Rs 21,400.00.",0,transactional_clean,DS-01
+"Fastag account 849201 recharged with Rs 1,000.00 via UPI on 07-Nov-26. Current Fastag balance Rs 1,420.00.",0,transactional_clean,DS-01
 729401 is your Amazon login verification code. It is valid for 10 minutes. Do not share this code with anyone.,0,otp_clean,DS-01
 581902 is your OTP to complete Swiggy order payment of Rs 480.00. Valid for 5 mins. Swiggy never asks for OTP.,0,otp_clean,DS-01
 Google verification code: 394820. Do not share with anyone.,0,otp_clean,DS-01
 Your one-time password for Zomato login is 6102. Valid for 10 minutes.,0,otp_clean,DS-01
 Microsoft security code: 849201. Use this to verify identity.,0,otp_clean,DS-01
-829471 is the OTP for registering Aadhaar on DigiLocker. Do not disclose.,0,otp_clean,DS-01
+829471 is the OTP for registering Aadhaar on DigiLocker. Do not disclose to anyone.,0,otp_clean,DS-01
+401928 is your OTP for Axis Bank NetBanking login. Valid for 3 minutes. Never disclose OTP over phone.,0,otp_clean,DS-01
+Your OTP for Aadhaar authentication is 918230. Valid for 10 mins. UIDAI never calls to verify OTP.,0,otp_clean,DS-01
+WhatsApp code: 492-109. You can also tap on the link to verify your phone.,0,otp_clean,DS-01
+Uber verification code is 5019. Enter this to confirm your phone number.,0,otp_clean,DS-01
 "Hey, are we still meeting for lunch at 1 PM today? Let me know where you want to go.",0,conversational_clean,DS-01
 "Hi Mom, reached office safely. Will call you during evening tea break.",0,conversational_clean,DS-01
 Can you please send me the presentation slides before the 3 PM team meeting?,0,conversational_clean,DS-01
@@ -70,7 +110,11 @@ Train is running on time. Expected arrival at New Delhi station is 18:45.,0,conv
 "Thanks for helping with the assignment yesterday, really appreciate it!",0,conversational_clean,DS-01
 "Let me know when you reach Bangalore, will arrange the cab for you.",0,conversational_clean,DS-01
 Great match today! Let us play tennis again this Saturday morning.,0,conversational_clean,DS-01
+Flight got delayed by 30 minutes. Boarding should start around 6 PM.,0,conversational_clean,DS-01
+"Dinner is ready, please come downstairs when you finish your work call.",0,conversational_clean,DS-01
 Dominos Pizza: Flat 50% OFF on all pizzas today! Use coupon code FEAST50 on Dominos App. T&C apply.,0,promotional_clean,DS-01
 Myntra End of Reason Sale starts midnight! Wishlist your favorite fashion brands now. Download Myntra app.,0,promotional_clean,DS-01
 BookMyShow: Tickets for Coldplay India Tour are now live on BookMyShow. Reserve your seats today.,0,promotional_clean,DS-01
 Cult.fit: Renew your annual gym membership today and get 2 months free extension. Offer ends Sunday.,0,promotional_clean,DS-01
+Zomato Gold: Free delivery on all orders above Rs 199. Enjoy unlimited dining discounts across 2000+ restaurants.,0,promotional_clean,DS-01
+"Flipkart Big Billion Days: Up to 80% off on electronics, smartphones, and home appliances. Sale live now.",0,promotional_clean,DS-01

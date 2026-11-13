@@ -49,3 +49,4 @@ class ThreatDistributionResponse(BaseModel):
     classifications: List[ThreatDistributionCategory]
     sources: List[ThreatDistributionCategory]
     timestamp: datetime
+

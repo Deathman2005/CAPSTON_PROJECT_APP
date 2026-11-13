@@ -134,3 +134,4 @@ export const ThreatChart: React.FC<ThreatChartProps> = ({ distribution }) => {
     </div>
   );
 };
+

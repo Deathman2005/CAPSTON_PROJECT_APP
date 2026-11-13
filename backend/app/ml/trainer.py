@@ -14,6 +14,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import ComplementNB
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import (
     precision_score,
@@ -149,6 +150,18 @@ class SmsModelTrainer:
                     ),
                 ),
             ]),
+            "random_forest": Pipeline([
+                ("features", build_feature_pipeline()),
+                (
+                    "classifier",
+                    RandomForestClassifier(
+                        n_estimators=100,
+                        max_depth=12,
+                        min_samples_split=2,
+                        random_state=self.random_state,
+                    ),
+                ),
+            ]),
         }
 
         comparison_results: Dict[str, Any] = {}
@@ -161,8 +174,8 @@ class SmsModelTrainer:
             test_metrics = evaluate_model_performance(pipeline, X_test, y_test)
             comparison_results[name] = test_metrics
 
-            # Model selection prioritized on PR-AUC, then F1 score
-            score = test_metrics["pr_auc"] * 100 + test_metrics["f1_score"] * 10
+            # Model selection prioritizing balanced F1 score and PR-AUC (penalizing false positives)
+            score = test_metrics["f1_score"] * 60.0 + test_metrics["pr_auc"] * 40.0
             if score > best_pr_auc:
                 best_pr_auc = score
                 best_name = name

@@ -70,18 +70,33 @@ CP2/
 
 ## 4. Implementation Phase Status
 
-- [x] **Phase 0: Architecture, Setup, and Monorepo** (FastAPI, SQLite/PostgreSQL, React, Gradle setup).
-- [x] **Phase 1: Android Foundation and Privacy-First UI** (5 Compose screens, Room DB, DataStore, Sharesheet).
-- [x] **Phase 2: Android Notification Monitoring and Extraction** (NotificationListenerService, Google/Samsung whitelist, OtpDetector, DuplicateDetector).
-- [x] **Phase 3: Backend Threat Intelligence and URL Scanning** (URL normalizer, SSRF protection, URLhaus, Google Safe Browsing, VirusTotal).
-- [x] **Phase 4: SMS Machine Learning and Training Pipeline** (SMS preprocessor, linguistic features, dataset registry, model training & baseline comparison, inference service).
-- [x] **Phase 5: URL Machine Learning and Combined Risk Engine** (Lexical feature extraction, URL model training, CombinedRiskEngine multi-signal consensus).
-- [x] **Phase 6: Full Integration and Warning Experience** (AlertDecisionEngine, Retrofit ApiClient, ScanRepository, AlertNotificationManager high-priority alerts).
-- [x] **Phase 7: Dashboard, Security Hardening, and Final Delivery** (Recharts threat distribution & source charts, live audit log, dashboard stats API, 100% test pass rate).
+- [x] **Phase 1: Backend Groq AI & Structured XAI Service** (Groq API `llama-3.3-70b-versatile`, anti-hallucination prompt envelope, 12 Indian fraud templates, deterministic offline fallback, bilingual English + Hindi translations).
+- [x] **Phase 2: Enhanced ML Model & TreeSHAP Token Attribution Engine** (Curated corpus expanded across all 12 fraud archetypes, calibrated classifier, exact Linear Shapley & TreeSHAP word attribution with character offsets).
+- [x] **Phase 3: QR Code Decoder & UPI Intent Parsing Engine** (NPCI UPI parser for `pa`, `pn`, `am`, `tn`, `mc`, `tr` across 32+ PSP handles, deceptive credit/refund trap analyzer, payee impersonation detector, `POST /api/v1/scan/qr`).
+- [x] **Phase 4: Android QR Scanner UI & Dual Mode** (Interactive SMS vs UPI/QR mode switcher, auto-routing from Android Sharesheet, offline QR heuristic fallback).
+- [x] **Phase 5: Android Explainable AI UI & Real-Time Notification Guard** (`buildHighlightedAnnotatedString` inline word attribution, Groq AI Card with `[EN / हिंदी]` live toggle, `UpiPaymentIntentCard` displaying NPCI UPI debit rule warning, Xiaomi MIUI / HyperOS autostart & battery optimization protection).
+- [x] **Phase 6: Full Integration Flow, Web Dashboard Sync & Final Release** (End-to-end integration test suite `test_e2e_full_flow.py`, 100% test pass rate, production React dashboard build, release ProGuard rules).
 
 ---
 
-## 5. Quickstart (Windows PowerShell)
+## 5. Supported Indian Financial Fraud Scenarios (12 Categories)
+
+1. **Fake Payment Confirmation**: Fraudulent payment-success SMS claiming money was received without bank credit.
+2. **Fake UPI Collect Request**: Deceptive collect requests urging victims to "Approve to receive payment".
+3. **QR-Code Payment Scam**: Deceptive QR codes claiming scanning credits refunds/prizes (NPCI rule: QR codes *only* debit money).
+4. **Fake Refund Scam**: Claims of failed transactions with requests to approve payment for refund release.
+5. **Duplicate Payment Scam**: Claims that an earlier transaction failed, coercing repeated payment.
+6. **Fake KYC Update SMS**: Threatens bank account suspension unless KYC is updated via phishing link.
+7. **Bank Account Suspension Scam**: Threatens immediate blocking of account, netbanking, or debit card.
+8. **Fake Customer-Care Scam**: Impersonates bank or payment support, requesting OTPs or remote access apps (AnyDesk, RustDesk).
+9. **Cashback and Reward Scam**: Unsolicited prize and scratch card lures with phishing claims.
+10. **SIM-Blocking Scam**: Threatens mobile number disconnection unless urgent e-KYC is completed.
+11. **Electricity Bill Disconnection Scam**: Urgent demands for electricity payment to prevent imminent disconnection.
+12. **Fake Delivery Fee Scam**: Demands unpaid customs or parcel dispatch fees via external tracking links.
+
+---
+
+## 6. Quickstart (Windows PowerShell)
 
 ### Backend
 

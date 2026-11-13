@@ -1,6 +1,7 @@
 package com.smsshield.app.ui.screens.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -114,6 +115,8 @@ fun HomeScreen(
             // Real-Time Monitoring Status Banner
             item {
                 val isFullyProtected = uiState.isMonitoringEnabled && uiState.isListenerPermissionGranted
+                val needsPermission = !uiState.isListenerPermissionGranted
+
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
@@ -142,13 +145,21 @@ fun HomeScreen(
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
-                                    text = if (isFullyProtected) "Real-Time Guard Active" else "Monitoring Disabled / Paused",
+                                    text = when {
+                                        isFullyProtected -> "Real-Time Guard Active"
+                                        needsPermission -> "Notification Access Required"
+                                        else -> "Monitoring Paused"
+                                    },
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 13.sp,
                                     color = Color.White
                                 )
                                 Text(
-                                    text = if (isFullyProtected) "Auto-inspecting supported SMS notifications" else "Enable in Settings for real-time alerts",
+                                    text = when {
+                                        isFullyProtected -> "Auto-inspecting supported SMS notifications"
+                                        needsPermission -> "Grant Android Notification Access to enable real-time detection"
+                                        else -> "Turn ON in Settings to resume monitoring"
+                                    },
                                     fontSize = 11.sp,
                                     color = Color.LightGray
                                 )
@@ -156,8 +167,25 @@ fun HomeScreen(
                         }
 
                         if (!isFullyProtected) {
-                            TextButton(onClick = onNavigateToSettings) {
-                                Text("SETUP", color = ShieldCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            TextButton(
+                                onClick = {
+                                    if (needsPermission) {
+                                        try {
+                                            context.startActivity(PermissionUtils.createNotificationListenerSettingsIntent())
+                                        } catch (_: Exception) {
+                                            onNavigateToSettings()
+                                        }
+                                    } else {
+                                        onNavigateToSettings()
+                                    }
+                                }
+                            ) {
+                                Text(
+                                    text = if (needsPermission) "GRANT" else "SETTINGS",
+                                    color = ShieldCyan,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                             }
                         }
                     }

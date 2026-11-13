@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Network permission for querying threat intelligence backend -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    
     <!-- Notification permission for Android 13+ alerting -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
-    <!--
-      STRICT PRIVACY POLICY:
-      Do NOT request READ_SMS or RECEIVE_SMS.
-      Monitoring is handled solely through the opt-in NotificationListenerService.
-    -->
+    <!-- Battery optimization exemption for background monitoring -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
         android:name=".SMSShieldApplication"
@@ -22,32 +16,31 @@
         android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SMSShield"
-        android:networkSecurityConfig="@xml/network_security_config"
         tools:targetApi="34">
-
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.SMSShield"
             android:windowSoftInputMode="adjustResize">
-            
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
             <!-- Manual Share Intent handling (ACTION_SEND text/plain) -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
-
         <!-- Opt-in SMS Notification Monitoring Service -->
         <service
             android:name=".service.SMSNotificationListener"
@@ -58,7 +51,6 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
-
     </application>
 
 </manifest>

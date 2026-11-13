@@ -18,11 +18,13 @@ from app.services.threat_intelligence.base import ProviderThreatStatus
 from app.ml.service import SmsClassifierService
 from app.ml.url_service import UrlClassifierService
 from app.services.risk_engine.engine import CombinedRiskEngine
+from app.services.explanation.groq_service import GroqExplanationService
 
 router = APIRouter(prefix="/scan", tags=["message-scanner"])
 aggregator = ThreatAggregator()
 sms_service = SmsClassifierService.get_instance()
 url_service = UrlClassifierService.get_instance()
+groq_service = GroqExplanationService.get_instance()
 
 # Regex to find embedded URLs in message text
 URL_REGEX = re.compile(
@@ -123,9 +125,21 @@ async def scan_message(request: MessageScanRequest, db: Session = Depends(get_db
         has_urls=len(urls) > 0,
     )
 
+    # 4. Explainable AI (XAI) Synthesis via Groq with Deterministic Local Fallback
+    explanation = groq_service.generate_explanation(
+        text=text,
+        classification=risk_assessment.classification,
+        risk_score=risk_assessment.risk_score,
+        reasons=risk_assessment.reasons,
+        extracted_urls=checked_urls,
+        token_attributions=ml_result.token_attributions,
+        top_risk_tokens=ml_result.top_risk_tokens,
+        top_safe_tokens=ml_result.top_safe_tokens,
+    )
+
     scan_id = uuid.uuid4()
 
-    # 4. Persist Scan Record (STRICT PRIVACY: zero raw SMS text)
+    # 5. Persist Scan Record (STRICT PRIVACY: zero raw SMS text)
     try:
         record = ScanRecord(
             id=scan_id,
@@ -155,5 +169,6 @@ async def scan_message(request: MessageScanRequest, db: Session = Depends(get_db
         extracted_urls=checked_urls,
         recommendation=risk_assessment.recommendation,
         model_version=f"{ml_result.model_version}|{url_version}",
+        explanation=explanation,
         timestamp=datetime.now(timezone.utc),
     )

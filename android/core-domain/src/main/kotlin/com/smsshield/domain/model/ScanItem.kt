@@ -14,6 +14,10 @@ data class ScanItem(
     val extractedUrls: List<String>,
     val detectionReasons: List<String>,
     val recommendation: String,
-    val sourceCategory: String
+    val sourceCategory: String,
+    val explanation: ExplanationApiModel? = null,
+    val upiDetails: UpiIntentApiModel? = null,
+    val payloadType: String? = null,
+    val scannedText: String? = null
 )
 

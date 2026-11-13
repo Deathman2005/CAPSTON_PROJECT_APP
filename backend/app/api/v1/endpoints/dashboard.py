@@ -170,3 +170,4 @@ def get_threat_distribution(db: Session = Depends(get_db)):
         sources=source_categories,
         timestamp=datetime.now(timezone.utc),
     )
+

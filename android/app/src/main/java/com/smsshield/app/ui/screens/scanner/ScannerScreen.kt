@@ -1,6 +1,7 @@
 package com.smsshield.app.ui.screens.scanner
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smsshield.app.ui.theme.*
+import com.smsshield.app.ui.viewmodel.ScanMode
 import com.smsshield.app.ui.viewmodel.ScanUiState
 import com.smsshield.app.ui.viewmodel.ScannerViewModel
 import com.smsshield.domain.model.ScanItem
@@ -28,7 +30,9 @@ fun ScannerScreen(
     initialSharedText: String? = null,
     onNavigateBack: () -> Unit
 ) {
+    val scanMode by viewModel.scanMode.collectAsState()
     val messageText by viewModel.messageText.collectAsState()
+    val qrText by viewModel.qrText.collectAsState()
     val extractedUrls by viewModel.extractedUrls.collectAsState()
     val scanState by viewModel.scanState.collectAsState()
     val clipboardManager = LocalClipboardManager.current
@@ -37,7 +41,13 @@ fun ScannerScreen(
     // Pre-populate message text if launched via Sharesheet
     LaunchedEffect(initialSharedText) {
         if (!initialSharedText.isNullOrBlank()) {
-            viewModel.updateMessageText(initialSharedText)
+            if (initialSharedText.startsWith("upi://", ignoreCase = true)) {
+                viewModel.setScanMode(ScanMode.QR)
+                viewModel.updateQrText(initialSharedText)
+            } else {
+                viewModel.setScanMode(ScanMode.SMS)
+                viewModel.updateMessageText(initialSharedText)
+            }
         }
     }
 
@@ -61,128 +71,288 @@ fun ScannerScreen(
             }
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Manual Message Scanner",
+                text = "Explainable Threat Scanner",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        // Message Input Box with Paste Button
-        OutlinedTextField(
-            value = messageText,
-            onValueChange = { viewModel.updateMessageText(it) },
+        // Mode Switcher Tabs [SMS / Messages | UPI / QR Code]
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(150.dp),
-            label = { Text("Enter or Paste SMS Text") },
-            placeholder = { Text("e.g., Your bank account is locked. Verify at http://...") },
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = ShieldCyan,
-                unfocusedBorderColor = ShieldBorder,
-                focusedContainerColor = ShieldCardBg,
-                unfocusedContainerColor = ShieldCardBg,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedLabelColor = ShieldCyan,
-                unfocusedLabelColor = Color.Gray
-            ),
-            trailingIcon = {
-                if (messageText.isNotEmpty()) {
-                    IconButton(onClick = { viewModel.clear() }) {
-                        Icon(Icons.Default.Close, contentDescription = "Clear", tint = Color.Gray)
-                    }
-                }
-            }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Action Toolbar (Paste & Clear)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .background(ShieldCardBg, RoundedCornerShape(10.dp))
+                .padding(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            TextButton(
-                onClick = {
-                    val clip = clipboardManager.getText()
-                    if (clip != null) {
-                        viewModel.updateMessageText(clip.text)
-                    }
-                }
+            Surface(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { viewModel.setScanMode(ScanMode.SMS) },
+                shape = RoundedCornerShape(8.dp),
+                color = if (scanMode == ScanMode.SMS) ShieldCyan else Color.Transparent
             ) {
-                Icon(Icons.Default.ContentPaste, contentDescription = null, tint = ShieldCyan, modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text("Paste from Clipboard", color = ShieldCyan, fontSize = 12.sp)
+                Row(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Message,
+                        contentDescription = null,
+                        tint = if (scanMode == ScanMode.SMS) Color.Black else Color.Gray,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "SMS Message",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (scanMode == ScanMode.SMS) Color.Black else Color.Gray
+                    )
+                }
             }
 
-            if (extractedUrls.isNotEmpty()) {
-                Surface(
-                    color = ShieldCyanDark.copy(alpha = 0.5f),
-                    shape = RoundedCornerShape(4.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, ShieldCyan)
+            Surface(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { viewModel.setScanMode(ScanMode.QR) },
+                shape = RoundedCornerShape(8.dp),
+                color = if (scanMode == ScanMode.QR) ShieldCyan else Color.Transparent
+            ) {
+                Row(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Icon(
+                        imageVector = Icons.Default.QrCodeScanner,
+                        contentDescription = null,
+                        tint = if (scanMode == ScanMode.QR) Color.Black else Color.Gray,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "${extractedUrls.size} URL(s) detected",
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                        fontSize = 11.sp,
-                        color = ShieldCyan
+                        text = "UPI / QR Code",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (scanMode == ScanMode.QR) Color.Black else Color.Gray
                     )
                 }
             }
         }
 
-        // Extracted URLs Chips
-        if (extractedUrls.isNotEmpty()) {
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // Content Area Based on Mode
+        if (scanMode == ScanMode.SMS) {
+            // SMS Message Input Box
+            OutlinedTextField(
+                value = messageText,
+                onValueChange = { viewModel.updateMessageText(it) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(140.dp),
+                label = { Text("Enter or Paste SMS Text") },
+                placeholder = { Text("e.g. Your electricity will be disconnected tonight. Pay immediately at http://...") },
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = ShieldCyan,
+                    unfocusedBorderColor = ShieldBorder,
+                    focusedContainerColor = ShieldCardBg,
+                    unfocusedContainerColor = ShieldCardBg,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = ShieldCyan,
+                    unfocusedLabelColor = Color.Gray
+                ),
+                trailingIcon = {
+                    if (messageText.isNotEmpty()) {
+                        IconButton(onClick = { viewModel.clear() }) {
+                            Icon(Icons.Default.Close, contentDescription = "Clear", tint = Color.Gray)
+                        }
+                    }
+                }
+            )
+
             Spacer(modifier = Modifier.height(6.dp))
-            Card(
+
+            // Action Toolbar (Paste & Clear)
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = ShieldCardBg),
-                shape = RoundedCornerShape(8.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, ShieldBorder)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.padding(10.dp)) {
-                    Text("Extracted URLs to Verify:", fontSize = 11.sp, color = Color.Gray)
-                    extractedUrls.forEach { url ->
+                TextButton(
+                    onClick = {
+                        val clip = clipboardManager.getText()
+                        if (clip != null) {
+                            viewModel.updateMessageText(clip.text)
+                        }
+                    }
+                ) {
+                    Icon(Icons.Default.ContentPaste, contentDescription = null, tint = ShieldCyan, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Paste from Clipboard", color = ShieldCyan, fontSize = 12.sp)
+                }
+
+                if (extractedUrls.isNotEmpty()) {
+                    Surface(
+                        color = ShieldCyanDark.copy(alpha = 0.5f),
+                        shape = RoundedCornerShape(4.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, ShieldCyan)
+                    ) {
                         Text(
-                            text = url,
-                            fontSize = 12.sp,
-                            color = ShieldCyan,
-                            maxLines = 1,
-                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                            text = "${extractedUrls.size} URL(s) detected",
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            fontSize = 11.sp,
+                            color = ShieldCyan
                         )
                     }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            // Extracted URLs Chips
+            if (extractedUrls.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = ShieldCardBg),
+                    shape = RoundedCornerShape(8.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, ShieldBorder)
+                ) {
+                    Column(modifier = Modifier.padding(10.dp)) {
+                        Text("Extracted URLs to Verify:", fontSize = 11.sp, color = Color.Gray)
+                        extractedUrls.forEach { url ->
+                            Text(
+                                text = url,
+                                fontSize = 12.sp,
+                                color = ShieldCyan,
+                                maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                }
+            }
 
-        // Scan Action Button
-        Button(
-            onClick = { viewModel.scanMessage(if (initialSharedText != null) "manual_share" else "manual_input") },
-            enabled = messageText.isNotBlank() && scanState !is ScanUiState.Loading,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = ShieldCyan,
-                disabledContainerColor = ShieldCyan.copy(alpha = 0.2f)
-            ),
-            shape = RoundedCornerShape(10.dp)
-        ) {
-            if (scanState is ScanUiState.Loading) {
-                CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.Black, strokeWidth = 2.dp)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Analyzing Threat Signatures...", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-            } else {
-                Icon(Icons.Default.Shield, contentDescription = null, tint = Color.Black, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Analyze Message", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Scan Action Button
+            Button(
+                onClick = { viewModel.scanMessage(if (initialSharedText != null) "manual_share" else "manual_input") },
+                enabled = messageText.isNotBlank() && scanState !is ScanUiState.Loading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = ShieldCyan,
+                    disabledContainerColor = ShieldCyan.copy(alpha = 0.2f)
+                ),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                if (scanState is ScanUiState.Loading) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.Black, strokeWidth = 2.dp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Analyzing Threat Signatures...", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                } else {
+                    Icon(Icons.Default.Shield, contentDescription = null, tint = Color.Black, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Analyze Message", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                }
+            }
+        } else {
+            // UPI / QR Code Input Box
+            OutlinedTextField(
+                value = qrText,
+                onValueChange = { viewModel.updateQrText(it) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(140.dp),
+                label = { Text("Enter or Paste UPI Intent / QR Link") },
+                placeholder = { Text("e.g. upi://pay?pa=cashback@upi&pn=Reward&am=2000&tn=Scan+to+receive+cashback") },
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = ShieldCyan,
+                    unfocusedBorderColor = ShieldBorder,
+                    focusedContainerColor = ShieldCardBg,
+                    unfocusedContainerColor = ShieldCardBg,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = ShieldCyan,
+                    unfocusedLabelColor = Color.Gray
+                ),
+                trailingIcon = {
+                    if (qrText.isNotEmpty()) {
+                        IconButton(onClick = { viewModel.clear() }) {
+                            Icon(Icons.Default.Close, contentDescription = "Clear", tint = Color.Gray)
+                        }
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Quick Actions (Paste from Clipboard & Info)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    onClick = {
+                        val clip = clipboardManager.getText()
+                        if (clip != null) {
+                            viewModel.updateQrText(clip.text)
+                        }
+                    }
+                ) {
+                    Icon(Icons.Default.ContentPaste, contentDescription = null, tint = ShieldCyan, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Paste from Clipboard", color = ShieldCyan, fontSize = 12.sp)
+                }
+
+                Surface(
+                    color = ShieldWarning.copy(alpha = 0.15f),
+                    shape = RoundedCornerShape(4.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, ShieldWarning.copy(alpha = 0.5f))
+                ) {
+                    Text(
+                        text = "UPI Safety Shield",
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        fontSize = 10.sp,
+                        color = ShieldWarning
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Scan QR Action Button
+            Button(
+                onClick = { viewModel.scanQr(qrText) },
+                enabled = qrText.isNotBlank() && scanState !is ScanUiState.Loading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = ShieldCyan,
+                    disabledContainerColor = ShieldCyan.copy(alpha = 0.2f)
+                ),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                if (scanState is ScanUiState.Loading) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.Black, strokeWidth = 2.dp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Deconstructing UPI Intent...", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                } else {
+                    Icon(Icons.Default.QrCodeScanner, contentDescription = null, tint = Color.Black, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Analyze UPI / QR Intent", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                }
             }
         }
 
@@ -237,8 +407,8 @@ fun ScanResultCard(
         shape = RoundedCornerShape(12.dp),
         border = androidx.compose.foundation.BorderStroke(1.dp, statusColor)
     ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            // Header
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            // Status Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -263,7 +433,7 @@ fun ScanResultCard(
                         Text("Risk Score", fontSize = 10.sp, color = Color.Gray)
                         Text(
                             text = "${scanItem.riskScore} / 100",
-                            fontSize = 14.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = statusColor
                         )
@@ -271,35 +441,53 @@ fun ScanResultCard(
                 }
             }
 
-            Divider(color = ShieldBorder)
-
-            // Recommendation
-            Column {
-                Text("Recommended Action", fontSize = 11.sp, color = Color.Gray)
-                Text(
-                    text = scanItem.recommendation,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White
+            // Specialized UPI Intent Card (if QR / UPI intent scanned)
+            val upiDetails = scanItem.upiDetails
+            if (upiDetails != null) {
+                UpiPaymentIntentCard(
+                    upi = upiDetails,
+                    classification = scanItem.classification
                 )
             }
 
-            // Detection Reasons
-            if (scanItem.detectionReasons.isNotEmpty()) {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Triggered Security Indicators", fontSize = 11.sp, color = Color.Gray)
-                    scanItem.detectionReasons.forEach { reason ->
-                        Row(verticalAlignment = Alignment.Top) {
-                            Text("•", color = statusColor, fontSize = 14.sp)
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(reason, fontSize = 12.sp, color = Color.LightGray)
+            // Rich Explainable AI Card (Groq AI explanation, bilingual Hindi toggle, token attribution highlighting)
+            val explanation = scanItem.explanation
+            if (explanation != null) {
+                ExplainableAiCard(
+                    explanation = explanation,
+                    scannedText = scanItem.scannedText
+                )
+            } else {
+                // Fallback Classic Section
+                Divider(color = ShieldBorder)
+
+                Column {
+                    Text("Recommended Action", fontSize = 11.sp, color = Color.Gray)
+                    Text(
+                        text = scanItem.recommendation,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                }
+
+                if (scanItem.detectionReasons.isNotEmpty()) {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text("Triggered Security Indicators", fontSize = 11.sp, color = Color.Gray)
+                        scanItem.detectionReasons.forEach { reason ->
+                            Row(verticalAlignment = Alignment.Top) {
+                                Text("•", color = statusColor, fontSize = 14.sp)
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(reason, fontSize = 12.sp, color = Color.LightGray)
+                            }
                         }
                     }
                 }
             }
 
-            // Extracted Link Details
+            // Extracted Link Details (if URLs detected)
             if (scanItem.extractedUrls.isNotEmpty()) {
+                Divider(color = ShieldBorder)
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text("Identified Links (${scanItem.urlCount})", fontSize = 11.sp, color = Color.Gray)
                     scanItem.extractedUrls.forEach { url ->
@@ -334,15 +522,17 @@ fun ScanResultCard(
 
             Divider(color = ShieldBorder)
 
-            // Audit Info
+            // Audit & Provenance Footer
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text("Source: ${scanItem.sourceCategory}", fontSize = 10.sp, color = Color.Gray)
+                if (scanItem.payloadType != null) {
+                    Text("Type: ${scanItem.payloadType}", fontSize = 10.sp, color = Color.Gray)
+                }
                 Text("Scan ID: ${scanItem.id.take(8)}...", fontSize = 10.sp, color = Color.Gray)
             }
         }
     }
 }
-

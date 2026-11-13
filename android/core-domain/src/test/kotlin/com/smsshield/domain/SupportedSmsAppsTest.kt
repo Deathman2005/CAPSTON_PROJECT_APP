@@ -56,7 +56,7 @@ class SupportedSmsAppsTest {
         assertNull(nullInfo)
 
         val allApps = SupportedSmsApps.getAllSupported()
-        assertEquals(2, allApps.size)
+        assertEquals(3, allApps.size)
     }
 }
 

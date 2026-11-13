@@ -23,6 +23,7 @@ object SupportedSmsApps {
 
     const val PACKAGE_GOOGLE_MESSAGES = "com.google.android.apps.messaging"
     const val PACKAGE_SAMSUNG_MESSAGES = "com.samsung.android.messaging"
+    const val PACKAGE_XIAOMI_MESSAGES = "com.android.mms"
 
     private val APPROVED_APPS = listOf(
         SmsAppInfo(
@@ -34,6 +35,11 @@ object SupportedSmsApps {
             packageName = PACKAGE_SAMSUNG_MESSAGES,
             displayName = "Samsung Messages",
             vendor = "Samsung Electronics"
+        ),
+        SmsAppInfo(
+            packageName = PACKAGE_XIAOMI_MESSAGES,
+            displayName = "Xiaomi / System Messages",
+            vendor = "Xiaomi / AOSP"
         )
     )
 

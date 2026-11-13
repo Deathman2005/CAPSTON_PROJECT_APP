@@ -37,7 +37,8 @@ class SMSNotificationListener : NotificationListenerService() {
         // Expose supported SMS packages for UI and verification
         val SUPPORTED_SMS_PACKAGES = setOf(
             SupportedSmsApps.PACKAGE_GOOGLE_MESSAGES,
-            SupportedSmsApps.PACKAGE_SAMSUNG_MESSAGES
+            SupportedSmsApps.PACKAGE_SAMSUNG_MESSAGES,
+            SupportedSmsApps.PACKAGE_XIAOMI_MESSAGES
         )
     }
 

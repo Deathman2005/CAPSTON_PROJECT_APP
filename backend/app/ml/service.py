@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 
 from app.ml.preprocessor import SmsPreprocessor
 from app.ml.features import extract_explanation_reasons
+from app.ml.attribution import TokenSpan, TokenAttributionEngine, AttributionExplanation
 
 logger = logging.getLogger("smsshield.ml.service")
 
@@ -26,6 +27,10 @@ class SmsClassificationResult(BaseModel):
     reasons: List[str] = Field(default_factory=list, description="Top linguistic and heuristic indicators")
     model_version: str = Field(..., description="Active model version identifier")
     preprocessed_text: str = Field(..., description="Canonical entity-masked text representation")
+    token_attributions: List[TokenSpan] = Field(default_factory=list, description="Token-level Explainable AI Shapley attributions with character offsets")
+    top_risk_tokens: List[str] = Field(default_factory=list, description="Top tokens driving scam probability")
+    top_safe_tokens: List[str] = Field(default_factory=list, description="Top tokens driving safe assessment")
+    attribution_method: str = Field("Exact Linear Shapley Attribution", description="Explainability attribution method")
     is_fallback: bool = Field(False, description="Whether fallback heuristic was used")
 
 
@@ -109,6 +114,9 @@ class SmsClassifierService:
                 classification = "SAFE"
                 confidence = round(1.0 - scam_prob, 2)
 
+            # Explainable AI token attribution via exact Shapley decomposition
+            attribution = TokenAttributionEngine.explain(self.pipeline, text, cleaned_text)
+
             return SmsClassificationResult(
                 classification=classification,
                 risk_score=risk_score,
@@ -116,6 +124,10 @@ class SmsClassifierService:
                 reasons=reasons,
                 model_version=self.version_id,
                 preprocessed_text=cleaned_text,
+                token_attributions=attribution.tokens,
+                top_risk_tokens=attribution.top_risk_tokens,
+                top_safe_tokens=attribution.top_safe_tokens,
+                attribution_method=attribution.attribution_method,
                 is_fallback=False,
             )
 
@@ -145,6 +157,8 @@ class SmsClassifierService:
             risk_score = 12.0
             confidence = 0.90
 
+        attribution = TokenAttributionEngine._heuristic_attribution(raw_text, cleaned_text)
+
         return SmsClassificationResult(
             classification=classification,
             risk_score=risk_score,
@@ -152,5 +166,9 @@ class SmsClassifierService:
             reasons=reasons,
             model_version="sms_baseline_heuristic_v1",
             preprocessed_text=cleaned_text,
+            token_attributions=attribution.tokens,
+            top_risk_tokens=attribution.top_risk_tokens,
+            top_safe_tokens=attribution.top_safe_tokens,
+            attribution_method=attribution.attribution_method,
             is_fallback=True,
         )

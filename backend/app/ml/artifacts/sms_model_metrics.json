@@ -1,82 +1,100 @@
 {
-  "version_id": "sms_logistic_regression_20261105",
+  "version_id": "sms_logistic_regression_20261109",
   "algorithm": "logistic_regression",
-  "deployed_at": "2026-11-05T16:37:38.052823+00:00",
+  "deployed_at": "2026-11-09T19:45:59.535080+00:00",
   "metrics": {
-    "precision": 0.8571,
-    "recall": 0.8571,
-    "f1_score": 0.8571,
-    "accuracy": 0.8333,
-    "roc_auc": 0.9429,
-    "pr_auc": 0.9683,
+    "precision": 0.9167,
+    "recall": 1.0,
+    "f1_score": 0.9565,
+    "accuracy": 0.9444,
+    "roc_auc": 0.974,
+    "pr_auc": 0.9842,
     "confusion_matrix": [
       [
-        4,
+        6,
         1
       ],
       [
-        1,
-        6
+        0,
+        11
       ]
     ]
   },
   "all_candidates": {
     "complement_nb": {
-      "precision": 0.7,
+      "precision": 0.7857,
       "recall": 1.0,
-      "f1_score": 0.8235,
-      "accuracy": 0.75,
-      "roc_auc": 0.9429,
-      "pr_auc": 0.9683,
+      "f1_score": 0.88,
+      "accuracy": 0.8333,
+      "roc_auc": 1.0,
+      "pr_auc": 1.0,
       "confusion_matrix": [
         [
-          2,
+          4,
           3
         ],
         [
           0,
-          7
+          11
         ]
       ]
     },
     "logistic_regression": {
-      "precision": 0.8571,
-      "recall": 0.8571,
-      "f1_score": 0.8571,
-      "accuracy": 0.8333,
-      "roc_auc": 0.9429,
-      "pr_auc": 0.9683,
+      "precision": 0.9167,
+      "recall": 1.0,
+      "f1_score": 0.9565,
+      "accuracy": 0.9444,
+      "roc_auc": 0.974,
+      "pr_auc": 0.9842,
       "confusion_matrix": [
         [
-          4,
+          6,
           1
         ],
         [
-          1,
-          6
+          0,
+          11
         ]
       ]
     },
     "linear_svc_calibrated": {
-      "precision": 0.75,
-      "recall": 0.8571,
-      "f1_score": 0.8,
-      "accuracy": 0.75,
-      "roc_auc": 0.9429,
-      "pr_auc": 0.9683,
+      "precision": 0.9167,
+      "recall": 1.0,
+      "f1_score": 0.9565,
+      "accuracy": 0.9444,
+      "roc_auc": 0.974,
+      "pr_auc": 0.9842,
       "confusion_matrix": [
         [
-          3,
-          2
+          6,
+          1
+        ],
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    "random_forest": {
+      "precision": 0.9091,
+      "recall": 0.9091,
+      "f1_score": 0.9091,
+      "accuracy": 0.8889,
+      "roc_auc": 0.974,
+      "pr_auc": 0.986,
+      "confusion_matrix": [
+        [
+          6,
+          1
         ],
         [
           1,
-          6
+          10
         ]
       ]
     }
   },
-  "dataset_records": 75,
-  "train_size": 52,
-  "test_size": 12
+  "dataset_records": 119,
+  "train_size": 83,
+  "test_size": 18
 }

@@ -1,6 +1,8 @@
 package com.smsshield.app
 
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -39,9 +41,16 @@ class MainActivity : ComponentActivity() {
         val scanRecordDao = database.scanRecordDao()
         val scanRepository = ScanRepository(applicationContext, database, preferencesRepository)
 
+        // Request POST_NOTIFICATIONS on Android 13+ so scan notifications are delivered
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1001)
+            }
+        }
+
         val onboardingViewModel = OnboardingViewModel(preferencesRepository)
         val homeViewModel = HomeViewModel(preferencesRepository, scanRecordDao)
-        val scannerViewModel = ScannerViewModel(scanRepository)
+        val scannerViewModel = ScannerViewModel(scanRepository, applicationContext)
         val settingsViewModel = SettingsViewModel(preferencesRepository, scanRecordDao)
 
         setContent {
