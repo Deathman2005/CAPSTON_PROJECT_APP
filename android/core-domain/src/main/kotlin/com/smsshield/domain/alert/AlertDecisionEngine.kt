@@ -34,11 +34,17 @@ object AlertDecisionEngine {
         return when (scan.classification) {
             SecurityClassification.MALICIOUS -> {
                 val scoreDisplay = scan.riskScore?.let { "[Risk ${it.toInt()}/100] " } ?: ""
+                val customTitle = scan.explanation?.summary_title?.takeIf { it.isNotBlank() }?.let { "⚠️ Dangerous Scam: $it" }
+                    ?: "⚠️ Dangerous Scam Detected"
+                val reason = scan.explanation?.why_flagged?.takeIf { it.isNotBlank() }
+                    ?: scan.detectionReasons.firstOrNull()?.takeIf { it.isNotBlank() }
+                    ?: "Fraudulent SMS detected. Do not click links or provide credentials."
+
                 AlertNotificationPayload(
                     shouldAlert = true,
                     priority = AlertPriority.HIGH,
-                    title = "⚠️ Dangerous Scam Detected",
-                    body = "${scoreDisplay}Fraudulent SMS detected. Do not click links or provide credentials.",
+                    title = customTitle,
+                    body = "${scoreDisplay}${reason}",
                     riskScore = scan.riskScore,
                     scanId = scan.id,
                     recommendation = scan.recommendation
@@ -46,11 +52,17 @@ object AlertDecisionEngine {
             }
             SecurityClassification.SUSPICIOUS -> {
                 val scoreDisplay = scan.riskScore?.let { "[Risk ${it.toInt()}/100] " } ?: ""
+                val customTitle = scan.explanation?.summary_title?.takeIf { it.isNotBlank() }?.let { "⚡ Suspicious Message: $it" }
+                    ?: "⚡ Suspicious Message Alert"
+                val reason = scan.explanation?.why_flagged?.takeIf { it.isNotBlank() }
+                    ?: scan.detectionReasons.firstOrNull()?.takeIf { it.isNotBlank() }
+                    ?: "Message exhibits risk indicators. Exercise caution before proceeding."
+
                 AlertNotificationPayload(
                     shouldAlert = true,
                     priority = AlertPriority.DEFAULT,
-                    title = "⚡ Suspicious Message Alert",
-                    body = "${scoreDisplay}Message exhibits risk indicators. Exercise caution before proceeding.",
+                    title = customTitle,
+                    body = "${scoreDisplay}${reason}",
                     riskScore = scan.riskScore,
                     scanId = scan.id,
                     recommendation = scan.recommendation

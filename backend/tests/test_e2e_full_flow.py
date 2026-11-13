@@ -78,7 +78,7 @@ ALL_12_FRAUD_SAMPLES = [
 def test_e2e_all_12_fraud_scenarios():
     """Verifies that all 12 fraud archetypes receive explanations, token attributions, and correct verdicts."""
     sms_service = SmsClassifierService.get_instance()
-    groq_service = GroqExplanationService(api_key=None)  # deterministic offline verification
+    groq_service = GroqExplanationService(api_key="")  # deterministic offline verification
 
     for scenario_name, text, expected_category in ALL_12_FRAUD_SAMPLES:
         # 1. ML Classification & Token Attribution
@@ -113,7 +113,7 @@ def test_e2e_clean_transactional_message():
     """Verifies that clean transactional banking SMS are classified as SAFE with no false-positive alarm."""
     clean_text = "Rs. 450.00 debited from A/c XX4021 on 09-NOV-26 at Swiggy. Available Bal: Rs 14,230.12. Ref 9283719."
     sms_service = SmsClassifierService.get_instance()
-    groq_service = GroqExplanationService(api_key=None)
+    groq_service = GroqExplanationService(api_key="")
 
     pred = sms_service.predict(clean_text)
     assert pred.classification == "SAFE", f"Clean transactional text false positive: {pred.classification}"

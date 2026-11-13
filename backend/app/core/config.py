@@ -37,8 +37,8 @@ class Settings(BaseSettings):
 
     # Groq AI Explanation Configuration
     GROQ_API_KEY: str = ""
-    GROQ_MODEL: str = "llama-3.3-70b-versatile"
-    GROQ_FALLBACK_MODEL: str = "llama-3.1-8b-instant"
+    GROQ_MODEL: str = "qwen/qwen3.8-27b"
+    GROQ_FALLBACK_MODEL: str = "qwen/qwen3.8-27b"
     GROQ_TIMEOUT_SECONDS: float = 6.0
 
     model_config = SettingsConfigDict(
