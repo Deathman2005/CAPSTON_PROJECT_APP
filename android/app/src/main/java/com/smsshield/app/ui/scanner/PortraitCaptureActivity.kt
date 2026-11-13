@@ -43,3 +43,4 @@ class PortraitCaptureActivity : CaptureActivity() {
         return barcodeView
     }
 }
+
