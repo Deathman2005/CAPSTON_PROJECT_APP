@@ -1,5 +1,10 @@
 package com.smsshield.app.ui.screens.scanner
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,9 +19,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanOptions
 import com.smsshield.app.ui.theme.*
 import com.smsshield.app.ui.viewmodel.ScanMode
 import com.smsshield.app.ui.viewmodel.ScanUiState
@@ -37,6 +46,52 @@ fun ScannerScreen(
     val scanState by viewModel.scanState.collectAsState()
     val clipboardManager = LocalClipboardManager.current
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
+
+    // Activity Result Launcher for ZXing Fullscreen Camera Barcode Scanner
+    val qrLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
+        val scanned = result.contents
+        if (!scanned.isNullOrBlank()) {
+            viewModel.updateQrText(scanned)
+            viewModel.scanQr(scanned)
+            Toast.makeText(context, "QR Code scanned successfully!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Camera Permission Launcher
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            val scanOptions = ScanOptions().apply {
+                setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+                setPrompt("Align the UPI QR code within the frame to scan")
+                setCameraId(0)
+                setBeepEnabled(true)
+                setBarcodeImageEnabled(false)
+                setOrientationLocked(false)
+            }
+            qrLauncher.launch(scanOptions)
+        } else {
+            Toast.makeText(context, "Camera permission is required to scan QR codes", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    val startCameraScanner = {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            val scanOptions = ScanOptions().apply {
+                setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+                setPrompt("Align the UPI QR code within the frame to scan")
+                setCameraId(0)
+                setBeepEnabled(true)
+                setBarcodeImageEnabled(false)
+                setOrientationLocked(false)
+            }
+            qrLauncher.launch(scanOptions)
+        } else {
+            permissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
 
     // Pre-populate message text if launched via Sharesheet
     LaunchedEffect(initialSharedText) {
@@ -265,13 +320,89 @@ fun ScannerScreen(
                 }
             }
         } else {
+            // Live Camera Scan Hero Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { startCameraScanner() },
+                colors = CardDefaults.cardColors(containerColor = ShieldCyan.copy(alpha = 0.12f)),
+                shape = RoundedCornerShape(12.dp),
+                border = androidx.compose.foundation.BorderStroke(1.5.dp, ShieldCyan)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        color = ShieldCyan,
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.size(46.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                Icons.Default.QrCodeScanner,
+                                contentDescription = "Camera QR Scanner",
+                                tint = Color.Black,
+                                modifier = Modifier.size(26.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Scan QR Code with Camera",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Point camera at any UPI / Payment QR code to inspect for fraud in real-time.",
+                            color = Color.LightGray,
+                            fontSize = 11.sp,
+                            lineHeight = 15.sp
+                        )
+                    }
+
+                    Icon(
+                        Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        tint = ShieldCyan,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Or Manual Input Divider
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Divider(modifier = Modifier.weight(1f), color = ShieldBorder)
+                Text(
+                    text = "  OR PASTE UPI INTENT  ",
+                    color = Color.Gray,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Divider(modifier = Modifier.weight(1f), color = ShieldBorder)
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
             // UPI / QR Code Input Box
             OutlinedTextField(
                 value = qrText,
                 onValueChange = { viewModel.updateQrText(it) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(140.dp),
+                    .height(120.dp),
                 label = { Text("Enter or Paste UPI Intent / QR Link") },
                 placeholder = { Text("e.g. upi://pay?pa=cashback@upi&pn=Reward&am=2000&tn=Scan+to+receive+cashback") },
                 shape = RoundedCornerShape(12.dp),
